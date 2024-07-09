@@ -1,0 +1,22 @@
+networks:
+  zef-net:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:14.3
+    container_name: zefpg
+    restart: always
+    networks:
+      zef-net:
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_PASSWORD: zef 
+      POSTGRES_USER: zef
+      POSTGRES_DB: zef
+      PGDATA: '/var/lib/postgresql/data/pgdata'
+    volumes:
+      - 'zef-db:/var/lib/postgresql/data'
+volumes:
+  zef-db:

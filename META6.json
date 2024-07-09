@@ -1,0 +1,17 @@
+{
+  "auth": "zef:tony-o",
+  "build-depends": [
+  ],
+  "depends": [
+  ],
+  "description": "An ecosystem hosting module for raku",
+  "name": "Eb",
+  "provides": {
+    "Eb": "lib/Eb.rakumod"
+  },
+  "resources": [
+  ],
+  "test-depends": [
+  ],
+  "version": "0.0.1"
+}
