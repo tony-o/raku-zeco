@@ -5,9 +5,9 @@
   "depends": [
   ],
   "description": "An ecosystem hosting module for raku",
-  "name": "Eb",
+  "name": "Zeco",
   "provides": {
-    "Eb": "lib/Eb.rakumod"
+    "Zeco": "lib/Zeco.rakumod"
   },
   "resources": [
   ],
