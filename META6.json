@@ -43,6 +43,7 @@
     "migrations/001.down.sql",
     "migrations/002.up.sql",
     "migrations/002.down.sql",
+    "erd.dbml",
     "test-fez-config.json",
     "test-fez-eco-config.toml"
   ],
