@@ -1,0 +1,40 @@
+use Test;
+
+use lib 'xt/lib';
+use TestRender;
+use TestUtil;
+use Zeco::DB;
+use Zeco::Query::Users;
+use Zeco::Util::Types;
+use Zeco::Util::Json;
+use Zeco::Exceptions;
+
+plan 10;
+
+cleanup;
+
+my $test-render = TestRender.new;
+my $user-q = QRegister.new(:email(email), :username<tonyo-test>, :password<password>);
+
+# sign up
+register($user-q).render($test-render);
+$test-render.assert(200, {:success});
+
+# try an invalid key
+$user-q = QLogin.new(:username<tonyo-test>, :password<password>);
+login($user-q).render($test-render);
+my $key = $test-render.body<key> // 'unset';
+$test-render.assert(200, {:success, :$key});
+
+my $user-id = db.query('select user_id from users where email = $1;', email).hash<user_id>;
+
+$user-q = QUpdateUserMeta.new(:email<test@x.com>, :name<name2>, :website<www.google.com>);
+update-user-meta($user-q, $user-id).render($test-render);
+$test-render.assert(200, {:success});
+is-deeply meta, {:email<test@x.com>, :name<name2>, :website<www.google.com>};
+
+# no sparse updates
+$user-q = QUpdateUserMeta.new(:email<testcom>, :name<name>, :website<www.google.co.uk>);
+update-user-meta($user-q, $user-id).render($test-render);
+$test-render.assert(422, {:!success, :message('Invalid email.')});
+is-deeply meta, {:email<test@x.com>, :name<name2>, :website<www.google.com>};

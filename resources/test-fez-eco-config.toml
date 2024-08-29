@@ -1,0 +1,3 @@
+db='postgres://zef:fez@localhost:5433/zef'
+port=9000
+bucket='<TEST>'

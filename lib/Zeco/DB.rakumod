@@ -1,0 +1,55 @@
+unit module Zeco::DB;
+
+use DB::Pg;
+use Zeco::Config;
+
+sub migrate() {
+  my $db = DB::Pg.new(conninfo => config.db);
+  my %migrations;
+  for |$?DISTRIBUTION.meta<resources> -> $r {
+    my @parts = $r.IO.basename.split('.');
+    my $name = @parts[0..*-3].join('.');
+    my $dir  = @parts[*-2];
+    %migrations{$name} //= {};
+    %migrations{$name}{$dir} = %?RESOURCES{$r};
+  }
+
+  $db.query(q:to/EOS/);
+  DO $$ BEGIN
+    CREATE TYPE migration_status AS ENUM ('complete', 'error', 'skipped');
+  EXCEPTION
+    WHEN duplicate_object THEN NULL;
+  END $$;
+  EOS
+
+  $db.query(q:to/EOS/);
+  CREATE TABLE IF NOT EXISTS migrations (
+    id     serial NOT NULL PRIMARY KEY,
+    file   text   NOT NULL,
+    status migration_status NOT NULL
+  );
+  EOS
+
+  my %existing-migrations = $db.query('SELECT * FROM migrations;').hashes.map({ $_<file> => $_<status> // Nil });
+
+  for %migrations.keys.sort -> $mig {
+    next if %existing-migrations{$mig};
+    try {
+      CATCH {
+        default {
+          $db.query('INSERT INTO migrations (file, status) VALUES ($1, \'error\');', $mig); 
+          $*ERR.say: $_;
+          exit 1;
+        }
+      }
+      $db.execute(%migrations{$mig}<up>.IO.slurp);
+      $db.query('INSERT INTO migrations (file, status) VALUES ($1, \'success\');', $mig); 
+    };
+  }
+
+  $db;
+}
+
+my $instance = migrate;
+
+sub db() is export { $instance }

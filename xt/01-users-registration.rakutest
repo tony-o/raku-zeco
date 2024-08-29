@@ -1,0 +1,38 @@
+use Test;
+
+use lib 'xt/lib';
+use TestRender;
+use TestUtil;
+use Zeco::DB;
+use Zeco::Query::Users;
+use Zeco::Util::Types;
+use Zeco::Util::Json;
+use Zeco::Exceptions;
+
+my @inputs = (
+  {:email(email), :username<tonyo-test>, :password<password>, :no-cleanup},
+  {:email(email), :username<tonyo-test>, :password<password>, :no-cleanup},
+  {:email(email), :username<tonyo-test2>, :password<password>, :no-cleanup},
+  {:email(email), :username<tonyo-test>, :password<short>},
+  {:email('not an email'), :username<tonyo-test2>, :password<password>, :no-cleanup},
+);
+my @expects = (
+  [200, to-j({:success})],
+  [400, to-j({:!success, :message('Username exists, please choose another or initiate a password reset.')})],
+  [400, to-j({:!success, :message('Email exists, please initiate a password reset.')})],
+  [400, to-j({:!success, :message(InvalidPassword.new.message)})],
+  [422, to-j({:!success, :message('Invalid email.')})],
+);
+
+
+cleanup;
+plan 2 * +@inputs;
+
+my $test-render = TestRender.new;
+my $user-q;
+for 0..^+@inputs -> $idx {
+  $user-q = QRegister.new(:email(@inputs[$idx]<email>), :username(@inputs[$idx]<username>), :password(@inputs[$idx]<password>));
+  register($user-q).render($test-render);
+  $test-render.assert(|@expects[$idx]);
+  cleanup unless (@inputs[$idx]<no-cleanup>//False);
+}

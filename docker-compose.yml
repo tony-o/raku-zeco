@@ -12,7 +12,7 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_PASSWORD: zef 
+      POSTGRES_PASSWORD: fez
       POSTGRES_USER: zef
       POSTGRES_DB: zef
       PGDATA: '/var/lib/postgresql/data/pgdata'

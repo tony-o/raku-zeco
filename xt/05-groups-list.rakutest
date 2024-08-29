@@ -1,0 +1,32 @@
+use Test;
+
+use lib 'xt/lib';
+use TestRender;
+use TestUtil;
+use Zeco::DB;
+use Zeco::Query::Users;
+use Zeco::Query::Groups;
+use Zeco::Util::Types;
+use Zeco::Util::Json;
+use Zeco::Exceptions;
+
+plan 8;
+
+cleanup;
+
+my $test-render = TestRender.new;
+my $user-q = QRegister.new(:email(email), :username<tonyo-test>, :password<password>);
+
+# sign up
+register($user-q).render($test-render);
+$test-render.assert(200, {:success});
+
+$user-q = QCreateGroup.new(:email(grup), :group<tonyo-group-test>);
+create-group($user-q, user-id).render($test-render);
+$test-render.assert(200, {:success});
+
+list-groups(user-id).render($test-render);
+$test-render.assert(200, {:success, :groups([{:name("tonyo-group-test"), :role("admin")},])});
+
+members-groups(QGroup.new(:group('tonyo-group-test'))).render($test-render);
+$test-render.assert(200, {:success, :members([{:username('tonyo-test'), :role("admin")},])});

@@ -1,0 +1,44 @@
+use Test;
+
+use lib 'xt/lib';
+use TestRender;
+use TestUtil;
+use Zeco::DB;
+use Zeco::Query::Users;
+use Zeco::Query::Groups;
+use Zeco::Util::Types;
+use Zeco::Util::Json;
+use Zeco::Exceptions;
+
+plan 12;
+
+cleanup;
+
+my $test-render = TestRender.new;
+my $user-q = QRegister.new(:email(email), :username<tonyo-test>, :password<password>);
+
+# sign up
+register($user-q).render($test-render);
+$test-render.assert(200, {:success});
+
+ok !group-exists('tonyo-group-test').so,
+   "group 'tonyo-group-test' exists";
+ok !is-group-admin('tonyo-group-test', user-id).so,
+   'user is admin of group by default';
+
+$user-q = QCreateGroup.new(:email(grup), :group<tonyo-group-test>);
+create-group($user-q, user-id).render($test-render);
+$test-render.assert(200, {:success});
+
+# error for last admin
+leave-group(QGroup.new(:group('tonyo-group-test')), user-id).render($test-render);
+$test-render.assert(404, {:!success, :message('Not found. If you\'re the last member then you need to demote yourself to member and then leave.  This is to avoid accidentally orphaned orgs.')});
+
+# demote yourself
+$user-q = QGroupUserRole.new(:user<tonyo-test>, :group<tonyo-group-test>, :role<member>);
+modify-group($user-q, user-id).render($test-render);
+$test-render.assert(200, {:success});
+
+# now you can orphan the org
+leave-group(QGroup.new(:group('tonyo-group-test')), user-id).render($test-render);
+$test-render.assert(200, {:success});

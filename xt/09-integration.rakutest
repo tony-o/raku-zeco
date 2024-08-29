@@ -1,0 +1,175 @@
+#!/usr/bin/env raku
+
+use Test;
+
+use Fez::API;
+
+use Zeco::DB;
+use Zeco::Query::Dists;
+
+use lib 'xt/lib';
+use TestIntegration;
+
+# plan 11;
+
+my ($api-key, $user2-api-key);
+
+sub msg(Str:D $x, $resp --> Str) { $x ~ (!$resp.success ?? ": {$resp.message}" !! '') }
+sub not-msg(Str:D $x, $resp --> Str) { $x ~ ($resp.success ?? ": {$resp.message}" !! '') }
+
+# user tests
+my $response = register('some@email.com', '_t3st', 'passwordless');
+ok $response.success, msg('registration', $response);
+
+$response = login('_t3st', 'passwordless');
+ok $response.success, msg('can login', $response);
+ok $response.key ne '', 'login returns key';
+$response = login('_t3st', 'wrong password');
+ok !$response.success, not-msg('cannot login w bad password', $response);
+
+$response = init-reset-password('_t3st');
+ok $response.success, msg('init-reset-password', $response);
+my $key = db.query('SELECT key FROM password_reset;').hash<key> // '';
+$response = reset-password('_t3st', $key, 'passwordless2');
+ok $response.success, msg('reset-password', $response);
+
+$response = reset-password('_t3st', 'not a key', 'passwordless2');
+ok !$response.success, not-msg('reset-password fails w bad key', $response);
+
+$response = login('_t3st', 'passwordless2');
+ok $response.success, msg('can login w new password', $response);
+ok $response.key ne '', 'login returns key';
+$api-key = $response.key;
+
+$response = update-meta($response.key, 'hello world', 'https://website.com', 'test@email.com');
+ok $response.success, msg('update user meta', $response);
+
+$response = login('_t3st', 'passwordless');
+ok !$response.success, not-msg('cannot login w old password', $response);
+
+# org tests
+## create a second user
+
+$response = register('some@email2.com', '_test', 'passwordless');
+ok $response.success, msg('register user2', $response);
+$response = login('_test', 'passwordless');
+ok $response.success, msg('user2 can login', $response);
+$user2-api-key = $response.key;
+
+$response = org-create($api-key, 'org-name', 'org@org.com');
+ok $response.success, msg(msg('can create org', $response), $response);
+
+$response = org-create($api-key, '_t3st', 'org@org.com');
+ok !$response.success, not-msg('cannot create org that clobbers existing user', $response);
+
+$response = org-create($api-key, 'org-name', 'org@org.com');
+ok !$response.success, not-msg('cannot create org that clobbers existing org', $response);
+
+$response = org-list($api-key);
+ok $response.success, msg('org list call after creation returns one', $response);
+ok +$response.groups == 1, 'groups len == 1';
+ok $response.groups[0]<name role> ~~ ['org-name', 'admin'], 'name and role of group are org-name and admin';
+
+$response = org-pending($user2-api-key);
+ok $response.success, msg('org pending call succeeds even with no groups', $response);
+ok +$response.groups == 0, 'user2 should have no pending invites';
+
+$response = org-list($user2-api-key);
+ok $response.success, msg('org-list for user2 works', $response);
+ok +$response.groups == 0, 'user2 belongs to groups';
+
+$response = org-join($user2-api-key, 'org-name');
+ok !$response.success, not-msg('user2 cannot join org-name without an invite', $response);
+
+$response = org-invite($user2-api-key, 'org-name', 'member', '_test');
+ok !$response.success, not-msg('user2 cannot invite themselves to an org', $response);
+
+$response = org-invite($api-key, 'org-name', 'member', '_test');
+ok $response.success, msg('can invite user2 to org-name', $response);
+
+$response = org-pending($user2-api-key);
+ok $response.success, msg('org pending call succeeds with groups', $response);
+ok +$response.groups == 1, 'user2 should have one pending invite';
+ok $response.groups[0]<name role> ~~ ['org-name', 'member'], 'invitation has correct role/group';
+
+$response = org-members($api-key, 'org-name');
+ok $response.success, msg('can list org members within group', $response);
+ok +$response.members == 1, 'org-name should have one member';
+ok $response.members[0]<username role> ~~ ['_t3st', 'admin'], 'correct user/role for org-name';
+
+$response = org-members($user2-api-key, 'org-name');
+ok $response.success, msg('registered user can list group members for group they do not belong to', $response);
+ok +$response.members == 1, 'org-name should have one member';
+ok $response.members[0]<username role> ~~ ['_t3st', 'admin'], 'correct user/role for org-name';
+
+$response = org-join($user2-api-key, 'org-name');
+ok $response.success, msg('user2 can join once invite is created', $response);
+
+$response = org-members($api-key, 'org-name');
+ok $response.success, msg('can list org members within group', $response);
+ok +$response.members == 2, 'org-name should now have two members';
+
+$response = org-mod($user2-api-key, 'org-name', 'admin', '_test');
+ok !$response.success, not-msg('user2 cannot upgrade user2\'s role', $response);
+
+$response = org-mod($api-key, 'org-name', 'admin', '_test');
+ok $response.success, msg('correct user can upgrade user2\'s role', $response);
+
+$response = org-members($api-key, 'org-name');
+ok $response.success, msg('member list ok', $response);
+ok +$response.members == 2, 'org-name should still have two members';
+ok $response.members.map(*<role>).unique.elems == 1, 'both members should be an admin';
+ok $response.members.map(*<role>).unique[0] eq 'admin', 'both members should be an admin';
+
+$response = org-mod($user2-api-key, 'org-name', 'member', '_t3st');
+ok $response.success, msg('can demote user', $response);
+
+$response = org-members($api-key, 'org-name');
+ok $response.success, msg('member list ok', $response);
+ok +$response.members == 2, 'org-name should still have two members';
+ok $response.members.map(*<role>).unique.elems == 2, 'should have one member and one admin';
+
+$response = org-leave($api-key, 'org-name');
+ok $response.success, msg('can leave org', $response);
+
+$response = org-members($api-key, 'org-name');
+ok $response.success, msg('member list ok', $response);
+ok +$response.members == 1, 'org-name should only have one member';
+
+$response = org-leave($user2-api-key, 'org-name');
+ok !$response.success, not-msg('last admin cannot leave org, must demote first', $response);
+
+$response = org-mod($user2-api-key, 'org-name', 'member', '_test');
+ok $response.success, msg('user2 can demote self', $response);
+
+$response = org-leave($user2-api-key, 'org-name');
+ok $response.success, msg('user2 can leave org after demotion', $response);
+
+$response = org-create($api-key, 'orgz', 'org@org.com');
+ok $response.success, msg(msg('can create org', $response), $response);
+
+# dist functions
+$response = upload($api-key, 'META6.json'.IO);
+ok !$response.success, not-msg('old upload endpoint does not work', $response);
+
+$response = direct-upload($api-key, 'META6.json'.IO);
+ok !$response.success, not-msg(msg('upload fails for META6.json', $response), $response);
+
+$response = direct-upload($api-key, 'xt/data/sample.tar.gz'.IO);
+ok !$response.success, not-msg('upload fails for GREEN', $response);
+ok $response.message ~~ m:i/'Invalid auth'/, msg('upload fails for invalid auth', $response);
+
+$response = org-create($api-key, 'tony-o', 'org@org.com');
+ok $response.success, msg(msg('can create org tony-o', $response), $response);
+$response = direct-upload($api-key, 'xt/data/sample.tar.gz'.IO);
+ok $response.success, msg(msg('upload succeeds for GREEN', $response), $response);
+
+my $index = generate-full-meta();
+ok $index.index.elems == 1, 'index has the appropriate number of dists';
+ok $index.index[0]<name dist> ~~ ['Green', 'Green:ver<0.1.3>:auth<zef:tony-o>'], 'uploaded dist indexes correctly'; 
+
+$response = remove($api-key, 'Green:ver<0.1.3>:auth<zef:tony-o>');
+ok $response.success, msg('remove works', $response);
+
+$index = generate-full-meta();
+ok $index.index.elems == 0, 'index no longer contains deleted dist';
