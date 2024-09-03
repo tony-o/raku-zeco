@@ -8,7 +8,7 @@ use Zeco::Query::Users;
 use Zeco::Query::Groups;
 use Zeco::Util::Types;
 use Zeco::Util::Json;
-use Zeco::Exceptions;
+use Zeco::Responses;
 
 plan 8;
 

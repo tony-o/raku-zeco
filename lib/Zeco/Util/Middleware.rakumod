@@ -1,6 +1,6 @@
 unit module Zeco::Util::Middleware;
 
-use Zeco::Exceptions;
+use Zeco::Responses;
 use Zeco::Query;
 use Zeco::Util::Types;
 

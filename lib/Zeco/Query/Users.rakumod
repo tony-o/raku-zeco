@@ -5,7 +5,7 @@ use Email::Valid;
 
 use Zeco::DB;
 use Zeco::Email;
-use Zeco::Exceptions;
+use Zeco::Responses;
 use Zeco::Util::BCrypt;
 use Zeco::Util::Types;
 

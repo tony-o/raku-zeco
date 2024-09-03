@@ -5,7 +5,7 @@ use Net::DNS;
 
 use Zeco::DB;
 use Zeco::Email;
-use Zeco::Exceptions;
+use Zeco::Responses;
 use Zeco::Query;
 use Zeco::Util::Types;
 

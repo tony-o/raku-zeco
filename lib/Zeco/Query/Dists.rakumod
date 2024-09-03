@@ -4,7 +4,7 @@ use Digest::SHA1::Native;
 
 use Zeco::DB;
 use Zeco::Config;
-use Zeco::Exceptions;
+use Zeco::Responses;
 use Zeco::Util::Process;
 use Zeco::Query::Groups;
 use Zeco::Util::Process;

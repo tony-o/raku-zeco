@@ -2,7 +2,7 @@ unit module Zeco::Dist;
 
 use Humming-Bird::Core;
 
-use Zeco::Exceptions;
+use Zeco::Responses;
 use Zeco::Util::Middleware;
 use Zeco::Util::Types;
 use Zeco::Query::Dists;
