@@ -26,7 +26,7 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
     WHERE id = $1;
   EOS
 
-  my $res = db.query($sql-r, $dist.dist, DateTime.now().posix + (3600 * config.delete-window)).hash;
+  my $res = db.query($sql-r, $dist.dist, config.delete-window > 0 ?? DateTime.now().posix - (3600 * config.delete-window) !! 0).hash;
   return NotFound.new unless $res;
   my $meta = from-j($res<meta>);
   if $meta<auth> ne "{config.eco-prefix}:{$user<username>}" {
