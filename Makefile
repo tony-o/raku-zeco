@@ -1,3 +1,5 @@
+dev:
+	raku -I. -M Zeco 
 
 export FEZ_ECO_CONFIG := resources/test-fez-eco-config.toml
 export FEZ_CONFIG     := resources/test-fez-config.json

@@ -7,9 +7,13 @@ class Cfg {
   has Int $.port;
   has Str $.bucket;
   has Str $.email-key;
+  has Int $.delete-window;
+  has Str $.eco-prefix,
 
   submethod BUILD(Str:D :$!db,
                   Str:D :$!bucket,
+                  Int:D :$!delete-window,
+                  Str:D :$!eco-prefix,
                   Int:D :$!port = 8080,
                   Str:D :$!email-key = 'unset',
                  )

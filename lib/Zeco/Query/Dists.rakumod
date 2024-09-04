@@ -16,6 +16,7 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
     SELECT id, meta
     FROM dists
     WHERE dist = $1
+      AND EXTRACT(EPOCH FROM created) > $2
       AND deleted = false;
   EOS
 
@@ -25,13 +26,13 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
     WHERE id = $1;
   EOS
 
-  my $res = db.query($sql-r, $dist.dist).hash;
+  my $res = db.query($sql-r, $dist.dist, DateTime.now().posix + (3600 * config.delete-window)).hash;
   return NotFound.new unless $res;
   my $meta = from-j($res<meta>);
-  if $meta<auth> ne "zef:{$user<username>}" {
+  if $meta<auth> ne "{config.eco-prefix}:{$user<username>}" {
     my $gs = members-groups(QGroup.new(group => $meta<auth>.substr(4)));
 
-    return InvalidAuth.new(:message("Invalid auth. User<{$user<username>}> is not a member of {$meta<auth>.substr(4)}"))
+    return InvalidAuth.new(:message("Invalid auth. User<{config.eco-prefix}:{$user<username>}> is not a member of {$meta<auth>}"))
       if $gs.status != 200 || $gs.payload.grep({$_<username> eq $user<username>}).elems == 0;
   }
 
@@ -72,11 +73,11 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   return InvalidMeta6Json.new unless $meta;
 
   # Validate user|group & auth
-  if $meta<auth> ne "zef:{$user<username>}" {
+  if $meta<auth> ne "{config.eco-prefix}:{$user<username>}" {
     # Check groups
     my $gs = members-groups(QGroup.new(group => $meta<auth>.substr(4)));
 
-    return InvalidAuth.new(:message("Invalid auth. User<{$user<username>}> is not a member of {$meta<auth>.substr(4)}"))
+    return InvalidAuth.new(:message("Invalid auth. User<{config.eco-prefix}:{$user<username>}> is not a member of {$meta<auth>}"))
       if $gs.status != 200 || $gs.payload.grep({$_<username> eq $user<username>}).elems == 0;
   }
 

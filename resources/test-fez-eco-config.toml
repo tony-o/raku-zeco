@@ -1,3 +1,5 @@
 db='postgres://zef:fez@localhost:5433/zef'
+eco-prefix='fez'
+delete-window=24
 port=9000
 bucket='<TEST>'

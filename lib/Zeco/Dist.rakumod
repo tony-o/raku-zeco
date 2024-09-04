@@ -15,7 +15,7 @@ post('/remove', -> $req, $res {
 }, [&authorize, body-parser(QRemoveDist)]);
 
 get('/', -> $req, $res {
-  generate-full-meta().render($res);
+  generate-full-meta().render($res, :bin($req.query<bin> ~~ 't'|'true'|'1'|'one'));
 });
 
 post('/upload', -> $req, $res {
@@ -33,7 +33,3 @@ get('/upload', -> $req, $res {
          :message('This endpoint is deprecated, please update your tooling'))
     .render($res);
 }, [&authorize]);
-
-get('/meta', -> $req, $res {
-  generate-full-meta().render($res);
-});

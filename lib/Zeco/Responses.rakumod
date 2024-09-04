@@ -147,8 +147,8 @@ class MetaIndex does Result is export {
   method render($res, :$bin = False) {
     $res.status($!status);
     if ($bin) {
-      my Buf $idx = index(@!index);
-      $res.write($idx.serialize);
+      my Buf $idx = index(@!index).serialize;
+      $res.write($idx);
     } else {
       $res.json(to-j(@!index));
     }
