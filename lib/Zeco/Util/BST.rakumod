@@ -258,13 +258,16 @@ class BST is export {
   }
 }
 
-sub index(IO() $meta-json, IO() $file = 'index') is export {
-  my @json = from-j($meta-json.slurp);
+sub index(@meta) is export {
   my $root = BST.new(:root);
-  for @json -> $j {
+  for @meta -> $j {
     for $j<provides>.keys -> $provided {
       $root.insert($provided, $j<dist>);
     }
   }
   $root;
+}
+
+sub index-f(IO() $meta-json) is export {
+  index(from-j($meta-json.slurp));
 }

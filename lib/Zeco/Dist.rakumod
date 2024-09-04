@@ -33,3 +33,7 @@ get('/upload', -> $req, $res {
          :message('This endpoint is deprecated, please update your tooling'))
     .render($res);
 }, [&authorize]);
+
+get('/meta', -> $req, $res {
+  generate-full-meta().render($res);
+});

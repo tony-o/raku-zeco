@@ -6,11 +6,13 @@ use Fez::API;
 
 use Zeco::DB;
 use Zeco::Query::Dists;
+use Zeco::Util::BST;
+use Zeco::Util::Json;
 
 use lib 'xt/lib';
 use TestIntegration;
 
-# plan 11;
+plan 69;
 
 my ($api-key, $user2-api-key);
 
@@ -167,6 +169,12 @@ ok $response.success, msg(msg('upload succeeds for GREEN', $response), $response
 my $index = generate-full-meta();
 ok $index.index.elems == 1, 'index has the appropriate number of dists';
 ok $index.index[0]<name dist> ~~ ['Green', 'Green:ver<0.1.3>:auth<zef:tony-o>'], 'uploaded dist indexes correctly'; 
+
+my $bindx = index($index.index);
+ok $bindx ~~ BST, 'index result can be indexed';
+ok $bindx.find('Green').elems == 1, 'index find works';
+ok $bindx.find-partial('Green').elems == 1, 'index find-partial works';
+ok to-j($index.index), 'index can be to-j\'d';
 
 $response = remove($api-key, 'Green:ver<0.1.3>:auth<zef:tony-o>');
 ok $response.success, msg('remove works', $response);

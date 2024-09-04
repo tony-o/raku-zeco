@@ -4,7 +4,7 @@ use Zeco::Util::Json;
 
 plan 5;
 
-my $bst = index('t/data/meta.json');
+my $bst = index-f('t/data/meta.json');
 
 ok $bst.find-partial('ACME').elems == 16, "find-partial (expect: 16, got: {$bst.find-partial('ACME').elems})";
 ok $bst.find('Acme::Cow').elems == 1, "find (expect: 1, got: {$bst.find('Acme::Cow').elems})";

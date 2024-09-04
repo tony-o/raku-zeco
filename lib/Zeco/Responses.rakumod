@@ -1,6 +1,7 @@
 unit module Zeco::Responses;
 
 use Zeco::Util::Json;
+use Zeco::Util::BST;
 
 role Result is export {
   has Str  $.message;
@@ -143,9 +144,14 @@ class MetaIndex does Result is export {
   has @!index;
 
   submethod BUILD (:@!index, :$!status = 200) { }
-  method render($res) {
-    $res.status($!status)
-        .json(to-j(@!index));
+  method render($res, :$bin = False) {
+    $res.status($!status);
+    if ($bin) {
+      my Buf $idx = index(@!index);
+      $res.write($idx.serialize);
+    } else {
+      $res.json(to-j(@!index));
+    }
     $res;
   }
   method index() { @!index; }
