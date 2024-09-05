@@ -53,11 +53,19 @@ sub create-group(QCreateGroup:D $qg, Int:D $user-id --> Result) is export {
     my $s2 = $d.prepare($sql-gm);
 
     $result = $s1.execute($qg.email, $qg.group).hash;
-    return UnknownError.new unless $result && $result<user_id>;
+    if !$result || !$result<user_id> {
+      $d.rollback;
+      $d.finish;
+      return UnknownError.new;
+    }
 
     $result = $s2.execute($result<user_id>, $user-id, 'admin').hash;
 
-    $result && $result<role> eq 'admin' && $d.commit;
+    if $result && $result<role> eq 'admin' {
+      $d.commit;
+    } else {
+      $d.rollback;
+    }
   };
 
   $d.finish;
