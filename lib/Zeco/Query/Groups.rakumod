@@ -131,7 +131,7 @@ sub modify-group(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
   my $mesult = send-message(message(
     :to($result<email>),
     :subject("Org Role Update: '{$qg.group}' - Zef Ecosystem"),
-    :text("You're role in '{$qg.group}' has been changed to: {$qg.role}"),
+    :text("Your role in '{$qg.group}' has been changed to: {$qg.role}"),
   ));
   return SuccessFail.new if $mesult<message> ne 'Queued. Thank you.';
 

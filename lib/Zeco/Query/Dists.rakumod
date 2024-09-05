@@ -81,7 +81,6 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
       if $gs.status != 200 || $gs.payload.grep({$_<username> eq $user<username>}).elems == 0;
   }
 
-  # todo: this needs to upload to s3, and save to db
   my $name = S:g/<-[A..Za..z0..9_]>+// given $meta<name>.uc.subst('::', '_', :global);
   return InvalidMeta6Json.new(:message('Please use a name containing at least one ascii character'))
     if $name.chars == 0;
@@ -90,6 +89,7 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   my $path = sprintf '%s/', $name.substr(0, 1);
   $path ~= sprintf('%s/', $name.substr(1, 2)) if $name.chars >= 3;
   $path ~= sprintf '%s.tar.gz', $key;
+  # todo: this needs to upload to s3, and save to db
   my $escaped-ver  = (S:g/(<+[<>]>)/\\$0/ given $meta<version>);
   my $escaped-auth = (S:g/(<+[<>]>)/\\$0/ given $meta<auth>);
   my $dist-name = $meta<name>
