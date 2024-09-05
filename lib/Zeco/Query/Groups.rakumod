@@ -133,7 +133,7 @@ sub modify-group(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
     :subject("Org Role Update: '{$qg.group}' - Zef Ecosystem"),
     :text("Your role in '{$qg.group}' has been changed to: {$qg.role}"),
   ));
-  return SuccessFail.new if $mesult<message> ne 'Queued. Thank you.';
+  return SuccessFail.new if $mesult<message> ne email-success-message; 
 
   Success.new
 }
@@ -208,7 +208,7 @@ sub invite-groups(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
     :subject("Org Invite: {$qg.group} - Zef Ecosystem"),
     :text("You were invited to '{$qg.group}'. Please use `fez org accept '{$qg.group}'` to join, otherwise you can ignore this message."),
   ));
-  return SuccessFail.new if $mesult<message> ne 'Queued. Thank you.';
+  return SuccessFail.new if $mesult<message> ne email-success-message; 
   
   Success.new;
 }

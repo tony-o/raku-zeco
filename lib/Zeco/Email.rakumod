@@ -15,10 +15,11 @@ my $message-templ = Message.new(
 
 sub send-message(Message $msg --> Hash) is export {
   if env eq 'unset' {
-    return {:message('Queued. Thank you.')};
+    return {:message(email-success-message)};
   }
 
   $client.send($msg);
 }
 
 sub message(*%v --> Message) is export { $message-templ.(|%v) }
+sub email-success-message is export {'Queued. Thank you.'};

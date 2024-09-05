@@ -38,7 +38,7 @@ sub init-password-reset(QInitPasswordReset:D $ipr --> Result) is export {
     try { 
       my $mesult;
       CATCH {
-        return SuccessFail.new if $mesult<message> ne 'Queued. Thank you.';
+        return SuccessFail.new if $mesult<message> ne email-success-message;
       };
       $mesult = send-message(message(
         :to($user<email>),
