@@ -1,5 +1,7 @@
 # DB Tables and Explanations
 
+The ecosystem is intended for use with postgres.
+
 ## Schema Changes (Migrations)
 
 Migrations are handled in this repo by making the appropriate files in `resources/migrations/<whatever>.(up|down).sql` and adding that information to the `META6.json` file.  The recommendation for private ecosystems and any PRs following the initial release of this repository is to use the date and time (a POSIX timestamp) as the `<whatever>` to avoid having to refactor your PRs to finally get a clean merge.  All migrations are required to have an up|down file.

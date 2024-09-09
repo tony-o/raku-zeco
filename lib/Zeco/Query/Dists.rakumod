@@ -26,6 +26,8 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
     WHERE id = $1;
   EOS
 
+  return NotFound.new if config.delete-window < 0;
+
   my $res = db.query($sql-r, $dist.dist, config.delete-window > 0 ?? DateTime.now().posix - (3600 * config.delete-window) !! 0).hash;
   return NotFound.new unless $res;
   my $meta = from-j($res<meta>);
@@ -89,7 +91,6 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   my $path = sprintf '%s/', $name.substr(0, 1);
   $path ~= sprintf('%s/', $name.substr(1, 2)) if $name.chars >= 3;
   $path ~= sprintf '%s.tar.gz', $key;
-  # todo: this needs to upload to s3, and save to db
   my $escaped-ver  = (S:g/(<+[<>]>)/\\$0/ given $meta<version>);
   my $escaped-auth = (S:g/(<+[<>]>)/\\$0/ given $meta<auth>);
   my $dist-name = $meta<name>
