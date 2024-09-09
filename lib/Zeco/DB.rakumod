@@ -43,7 +43,7 @@ sub migrate() {
         }
       }
       $db.execute(%migrations{$mig}<up>.IO.slurp);
-      $db.query('INSERT INTO migrations (file, status) VALUES ($1, \'success\');', $mig); 
+      $db.query('INSERT INTO migrations (file, status) VALUES ($1, \'complete\');', $mig); 
     };
   }
 
