@@ -3,12 +3,20 @@ unit module Zeco;
 use Humming-Bird::Core;
 use Humming-Bird::Advice;
 
-
 use Zeco::Config;
 use Zeco::Group;
 use Zeco::User;
 use Zeco::Dist;
 use Zeco::Util::Json;
+
+=NAME
+Zeco
+
+=begin SYNOPSIS
+  raku -MZeco
+
+  Starts the default server.
+=end SYNOPSIS
 
 advice(-> $res {
   try {
