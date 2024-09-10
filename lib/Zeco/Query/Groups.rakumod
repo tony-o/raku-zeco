@@ -9,6 +9,121 @@ use Zeco::Responses;
 use Zeco::Query;
 use Zeco::Util::Types;
 
+=begin POD
+=NAME
+Zeco::Query::Groups
+
+=begin SYNOPSIS
+Methods for handling the processes around group management.
+=end SYNOPSIS
+
+=head2 method group-name-to-id(Str:D --> Int)
+
+  Signature: Str:D - group name to search for
+  Returns: Int - undefined Int if group was not found, otherwise the
+           group id to use when performing operations with the group
+           name.
+
+  Convenience method, not for use outside of Zeco::Query::*
+
+=head2 method group-exists(Str:D --> Bool:D)
+
+  Signature: Str:D - group name to search for
+  Returns: Bool:D - True if group is found, else False
+
+  Convenience method, not for use outside of Zeco::Query::*
+
+=head2 method is-group-admin(Str:D, Int:D --> Bool:D) 
+
+  Signature: Str:D - group name to check
+             Int:D - the user id to check for admin role
+  Returns: Bool:D - True if the user id given has the admin role for the group
+
+  Convenience method, not for use outside of Zeco::Query::*
+
+=head2 method create-group(QCreateGroup, Int:D --> Result)
+
+  Signature: QCreateGroup - the group to create
+             Int:D - the user id creating the group
+  Returns: Result
+
+  Checks:
+  - Checks if the group exists -> GroupExists 
+  - Email domain has MX records -> InvalidEmail
+  
+  Creates an entry in the `users` table with password '-' (indicating a group).
+  Adds the user as an admin to the created group.
+
+=head2 modify-group(QGroupUserRole:D, Int:D --> Result)
+
+  Signature: QGroupUserRole - the new role information containing:
+                              - user email to change roles for
+                              - the group name to alter roles in
+             Int:D - the user id requesting the change, must be an admin
+  Returns: Result
+
+  Use this method to alter user roles.
+
+=head2 list-groups(Int:D --> Result) 
+  
+  Signature: Int:D - authenticated user id to list groups for
+  Returns: Result - list of groups the user belongs to
+
+  Returns a string list of the groups the user belongs to.
+
+=head2 leave-group(QGroup:D, Int:D --> Result) 
+  
+  Signature: QGroup - the group information to leave
+             Int:D - authenticated user id of the user leaving the group
+  Returns: Result
+
+  Removes any roles associated with the current user and group.
+
+=head2 invite-groups(QGroupUserRole:D, Int:D --> Result) 
+
+  Signature: QGroupUserRole - the group information containing
+                              - invited user's email
+                              - group name
+                              - the user's role
+             Int:D - authenticated user id of the user making the request.
+                     this user must be an admin.
+  Returns: Result
+
+  Makes a group invite for a user to accept or reject.
+
+=head2 accept-invite-groups(QGroup:D, Int:D --> Result) 
+
+  Signature: QGroup - group information the user is accepting an invite for
+             Int:D  - authenticated user id accepting the invite
+  Returns: Result - list of groups the user belongs to
+
+  Modifies a group invite to a user role.
+
+=head2 pending-invites-groups(Int:D --> Result) 
+
+  Signature: Int:D  - authenticated user id to retrieve invites for
+  Returns: Result - list of invites the user may accept
+
+  Lists group invites for the given user.
+
+=head2 members-groups(QGroup:D --> Result) 
+
+  Signature: QGroup - the group to list members of 
+  Returns: Result - list of group members
+
+  Lists group members and roles for a given group. All group information
+  is intended as public.
+
+=head2 update-meta-groups(QGroupMeta:D, Int:D --> Result)
+
+  Signature: QGroupMeta - the valid meta data fields that can be updated
+             Int:D - user id making the request.  must be an admin
+  Returns: Result
+
+  Updates the group's public meta data.
+
+=end POD
+
 sub group-name-to-id(Str:D $group-name --> Int) is export {
   constant $sql = q:to/EOS/;
     SELECT user_id
@@ -22,7 +137,7 @@ sub group-name-to-id(Str:D $group-name --> Int) is export {
 
 sub group-exists(Str:D $name --> Bool) is export {
   constant $sql = q:to/EOS/;
-    SELECT count(*) as c FROM users WHERE username = $1;
+    SELECT count(*) as c FROM users WHERE username = $1 LIMIT 1;
   EOS
   db.query($sql, $name).hash<c> > 0;
 }
