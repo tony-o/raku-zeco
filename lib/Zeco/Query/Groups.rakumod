@@ -45,7 +45,10 @@ Methods for handling the processes around group management.
 
   Signature: QCreateGroup - the group to create
              Int:D - the user id creating the group
-  Returns: Result
+  Returns: GroupExists - the auth already exists (as either a user or group).
+           InvalidEmail - the email is invalid.
+           UnknownError - Something in the DB failed to insert or generate.
+           Success - the group can now upload dists and add/remove members.
 
   Checks:
   - Checks if the group exists -> GroupExists 
@@ -54,32 +57,41 @@ Methods for handling the processes around group management.
   Creates an entry in the `users` table with password '-' (indicating a group).
   Adds the user as an admin to the created group.
 
-=head2 modify-group(QGroupUserRole:D, Int:D --> Result)
+=head2 method modify-group(QGroupUserRole:D, Int:D --> Result)
 
   Signature: QGroupUserRole - the new role information containing:
                               - user email to change roles for
                               - the group name to alter roles in
              Int:D - the user id requesting the change, must be an admin
-  Returns: Result
+  Returns: InsufficientRole - requesting user id is not an admin.
+           NotFound - the user in QGroupUserRole is not a member of the group
+                      or ineligible for role change.
+           SuccessFail - the role was changed but an email failed to send.
+           Success - the role was changed and the user was emailed an notice. 
 
   Use this method to alter user roles.
 
-=head2 list-groups(Int:D --> Result) 
+=head2 method list-groups(Int:D --> Result) 
   
   Signature: Int:D - authenticated user id to list groups for
-  Returns: Result - list of groups the user belongs to
+  Returns: GroupListing - list of groups the user belongs to
 
   Returns a string list of the groups the user belongs to.
 
-=head2 leave-group(QGroup:D, Int:D --> Result) 
+=head2 method leave-group(QGroup:D, Int:D --> Result) 
   
   Signature: QGroup - the group information to leave
              Int:D - authenticated user id of the user leaving the group
-  Returns: Result
+  Returns: Success - user no longer belongs to the group.
+           NotFound - the user is not a member of the group.
+                    - the user is the last admin of the group. 
 
-  Removes any roles associated with the current user and group.
+  Removes any roles associated with the current user and group. If the user is
+  the last member of the group and they are an admin then this operation will
+  fail. To effectively abandon the group a user must first demote themselves to
+  a `member` and then leave the group.
 
-=head2 invite-groups(QGroupUserRole:D, Int:D --> Result) 
+=head2 method invite-groups(QGroupUserRole:D, Int:D --> Result) 
 
   Signature: QGroupUserRole - the group information containing
                               - invited user's email
@@ -87,38 +99,46 @@ Methods for handling the processes around group management.
                               - the user's role
              Int:D - authenticated user id of the user making the request.
                      this user must be an admin.
-  Returns: Result
+  Returns: NotFound - invited user is not registered in the ecosystem.
+           ExistingGroupMember - invited user is already a member of the group.
+           SuccessFail - invitation was created but email failed to send.
+           Success - invitation was created and user was sent an email.
 
   Makes a group invite for a user to accept or reject.
 
-=head2 accept-invite-groups(QGroup:D, Int:D --> Result) 
+=head2 method accept-invite-groups(QGroup:D, Int:D --> Result) 
 
   Signature: QGroup - group information the user is accepting an invite for
              Int:D  - authenticated user id accepting the invite
-  Returns: Result - list of groups the user belongs to
+  Returns: NotFound - invitation for that user/group combination was not found.
+           UnknownError - something happened.
+           Success - invitation was converted to a user group role.
 
   Modifies a group invite to a user role.
 
-=head2 pending-invites-groups(Int:D --> Result) 
+=head2 method pending-invites-groups(Int:D --> Result) 
 
   Signature: Int:D  - authenticated user id to retrieve invites for
-  Returns: Result - list of invites the user may accept
+  Returns: GroupListing - groups and roles the user is invited to become a
+                          part of. 
 
   Lists group invites for the given user.
 
-=head2 members-groups(QGroup:D --> Result) 
+=head2 method members-groups(QGroup:D --> Result) 
 
   Signature: QGroup - the group to list members of 
-  Returns: Result - list of group members
+  Returns: GroupListing - groups and roles of users in the requested group.
 
   Lists group members and roles for a given group. All group information
   is intended as public.
 
-=head2 update-meta-groups(QGroupMeta:D, Int:D --> Result)
+=head2 method update-meta-groups(QGroupMeta:D, Int:D --> Result)
 
   Signature: QGroupMeta - the valid meta data fields that can be updated
              Int:D - user id making the request.  must be an admin
-  Returns: Result
+  Returns: InsufficientRole - requesting user is not an admin of the group.
+           NotFound - the group is not registered.
+           Success - group info was updated.
 
   Updates the group's public meta data.
 
