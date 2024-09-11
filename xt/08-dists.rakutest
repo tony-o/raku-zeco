@@ -11,6 +11,9 @@ use Zeco::Util::Types;
 use Zeco::Util::Json;
 use Zeco::Responses;
 
+sub get-distx { from-j($*TMPDIR.add('distx').slurp) }
+
+plan 36;
 
 cleanup('org@org.com');
 my $test-render = TestRender.new;
@@ -35,9 +38,12 @@ $test-render.assert(403, {:!success, :message("Invalid auth. User<fez:tonyo-test
 # successful upload by another user
 ingest-upload(QIngestUpload.new(:$dist), $upload-user).render($test-render);
 $test-render.assert(200, {:success});
+my $distx = get-distx;
+ok $distx<dest> eq "G/RE/fcc4cdd231e20e087c76f23090231afded49fed3.tar.gz";
+ok $distx<src> eq "/tmp/fcc4cdd231e20e087c76f23090231afded49fed3.tgz";
 
 generate-full-meta().render($test-render);
-$test-render.assert(200, [{:api(""), :auth("fez:tony-o"), :dist("Green:ver<0.1.3>:auth<fez:tony-o>"), :name("Green"), :path("G/RE/fcc4cdd231e20e087c76f23090231afded49fed3.tar.gz"), :provides(${:Green("lib/Green.pm6")}), :version("0.1.3")}, ]);
+$test-render.assert(200, [{:auth("fez:tony-o"), :authors($["Tony O"]), :depends($["Terminal::ANSIColor"]), :description("Parallel testing utility, it's really great"), :dist("Green:ver<0.1.3>:auth<fez:tony-o>"), :name("Green"), :path("G/RE/fcc4cdd231e20e087c76f23090231afded49fed3.tar.gz"), :perl("6.*"), :provides(${:Green("lib/Green.pm6")}), :source-url("git://github.com/tony-o/perl6-green.git"), :version("0.1.3")},]);
 
 # our user cannot delete another user's dist
 remove-dist(QRemoveDist.new(:dist("Green:ver<0.1.3>:auth<fez:tony-o>")), $user).render($test-render);
@@ -56,9 +62,12 @@ $test-render.assert(200, {:success});
 
 ingest-upload(QIngestUpload.new(:$dist), $user).render($test-render);
 $test-render.assert(200, {:success});
+$distx = get-distx;
+ok $distx<dest> eq "G/RE/fcc4cdd231e20e087c76f23090231afded49fed3.tar.gz";
+ok $distx<src> eq "/tmp/fcc4cdd231e20e087c76f23090231afded49fed3.tgz";
 
 generate-full-meta().render($test-render);
-$test-render.assert(200, [{:api(""), :auth("fez:tony-o"), :dist("Green:ver<0.1.3>:auth<fez:tony-o>"), :name("Green"), :path("G/RE/fcc4cdd231e20e087c76f23090231afded49fed3.tar.gz"), :provides(${:Green("lib/Green.pm6")}), :version("0.1.3")}, ]);
+$test-render.assert(200, [{:auth("fez:tony-o"), :authors($["Tony O"]), :depends($["Terminal::ANSIColor"]), :description("Parallel testing utility, it's really great"), :dist("Green:ver<0.1.3>:auth<fez:tony-o>"), :name("Green"), :path("G/RE/fcc4cdd231e20e087c76f23090231afded49fed3.tar.gz"), :perl("6.*"), :provides(${:Green("lib/Green.pm6")}), :source-url("git://github.com/tony-o/perl6-green.git"), :version("0.1.3")},]);
 
 remove-dist(QRemoveDist.new(:dist("Green:ver<0.1.3>:auth<fez:tony-o>")), $upload-user).render($test-render);
 $test-render.assert(200, {:success});

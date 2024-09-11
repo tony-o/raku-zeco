@@ -1,54 +1,35 @@
 unit module Zeco::Email;
 
 use Zeco::Config;
-use Mailgun;
-
+use Zeco::Util::Types;
+use Zeco::Util::Process;
 
 =begin POD
 =NAME
 Zeco::Email
 
 =begin SYNOPSIS
-Contains an shorter interface for sending emails from the server.  Currently
-configured to use the mailgun API.  Message below refers to the
-Message provided by dist Mailgun.
+Contains an shorter interface for sending emails from the server. Will run the
+command provided in config.email-command
 =end SYNOPSIS
 
-=head2 method send-message (Message --> Hash)
+=head2 method send-message (QEmail --> Int)
 
-  Signature: Message - contains the email info.
-  Returns: Hash containing success or error data from mailgun.
+  Signature: QEmail - contains the email info.
+  Returns: Return code from process
 
-=head2 method message (*% --> Message)
+  Calling this method will create and call a command as specified from
+  config.email-command as:
 
-  Signature: *% - takes keys <from to subject text html> and formats that
-                  data into a Message for use with Mailgun
-  Returns: Message
+  <cmd> "<QEmail.to>" "<QEmail.type>" "<QEmail.id>"
 
-=head2 method email-success-message
+  The type to database id mapping is as follows:
 
-  Returns: Str containing the string Mailgun API returns when a message was
-           sent successfully.
+  PASSWORD-RESET     password_reset.password_reset_id 
 
 =end POD
 
-constant \env = config.email-key;
-my $client = Client.new(
-  :domain(%*ENV<ZEFECO_DOMAIN>//'zef.pm'),
-  :api-key(env),
-);
-
-my $message-templ = Message.new(
-  :from<no-reply@zef.pm>,
-).defaults;
-
-sub send-message(Message $msg --> Hash) is export {
-  if env eq 'unset' {
-    return {:message(email-success-message)};
-  }
-
-  $client.send($msg);
+sub send-message(QEmail $msg --> Int) is export {
+  my ($rc, ) = proc(|config.email-command, $msg.to, $msg.type, $msg.id);
+  return $rc; 
 }
-
-sub message(*%v --> Message) is export { $message-templ.(|%v) }
-sub email-success-message is export {'Queued. Thank you.'};

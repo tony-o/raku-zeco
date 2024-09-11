@@ -10,9 +10,16 @@ use Zeco::Util::Types;
 use Zeco::Util::Json;
 use Zeco::Responses;
 
-plan 24;
+plan 27;
 
 cleanup;
+
+sub chk-email($email) {
+  my $emailer-test = from-j($*TMPDIR.add("emailx").IO.slurp);
+  ok $emailer-test<to> eq $email, 'emailer script gets correct email';
+  ok $emailer-test<type> eq "INVITE-GROUP", 'emailer script has the correct type';
+  ok $emailer-test<related-id>.Int > 0, 'emailer script gets an actual id';
+}
 
 my $test-render = TestRender.new;
 my $user-q = QRegister.new(:email(email), :username<tonyo-test>, :password<password>);
@@ -39,6 +46,7 @@ $test-render.assert(403, {:!success, :message('You must be an admin to perform t
 
 invite-groups($user-q, user-id(email)).render($test-render);
 $test-render.assert(200, {:success}, :tag('Admin invite should work'));
+chk-email(email2);
 
 pending-invites-groups(user-id(email2)).render($test-render);
 $test-render.assert(200, {:success, groups => [{:name<tonyo-group-test>, :role<member>}, ]}, :tag('usr2 should have pending invites'));

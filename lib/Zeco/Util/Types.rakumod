@@ -161,3 +161,11 @@ class QRemoveDist does QType is export {
 
   submethod BUILD(Str:D :$!dist) { }
 }
+
+class QEmail is export {
+  has Str $.to;
+  has Str $.type;
+  has Str $.id;
+
+  submethod BUILD(Str:D :$!to, Str:D :$!type where * ~~ 'PASSWORD-RESET'|'INVITE-GROUP'|'MODIFY-GROUP', Str:D :$!id) {}
+}

@@ -56,6 +56,11 @@ Methods for handling the processes around dist management.
     -> IndexFailed (TODO)
   - Returns Success
 
+  After the checks this will attempt to run the command in
+  config.dist-move-command as follows:
+
+  config.dist-move-command <path to .tar.tz> <expected path at destination>
+
 =head2 method generate-full-meta(--> Result)
   
   Returns: MetaIndex 
@@ -151,18 +156,10 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   my $escaped-auth = (S:g/(<+[<>]>)/\\$0/ given $meta<auth>);
   my $dist-name = $meta<name>
                 ~ sprintf(':ver<%s>:auth<%s>', $escaped-ver, $escaped-auth);
-  my $index-meta = {
-    :$path,
-    :version($meta<version>),
-    :dist($dist-name),
-    :provides($meta<provides>),
-    :api($meta<api> // ''),
-    :auth($meta<auth>),
-    :name($meta<name>),
-  };
-  my ($rc, $pout, $perr) = config.bucket eq '<TEST>'
-    ?? (0, Nil, Nil)
-    !! proc('aws', 's3', 'mv', $gz-path.absolute, "{config.bucket}/repo/{$path}");
+  my $index-meta = $meta;
+  $index-meta<path> = $path;
+  $index-meta<dist> = $dist-name;
+  my ($rc, $pout, $perr) = proc(|config.dist-move-command, $gz-path.absolute, $path);
 
   return UnknownError.new(:message('Failed to send dist to permanent index, please try again in a few minutes'))
     unless $rc == 0;

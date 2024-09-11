@@ -34,5 +34,6 @@ for 0..^+@inputs -> $idx {
   $user-q = QRegister.new(:email(@inputs[$idx]<email>), :username(@inputs[$idx]<username>), :password(@inputs[$idx]<password>));
   register($user-q).render($test-render);
   $test-render.assert(|@expects[$idx]);
+
   cleanup unless (@inputs[$idx]<no-cleanup>//False);
 }

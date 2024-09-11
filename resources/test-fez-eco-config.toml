@@ -2,4 +2,11 @@ db='postgres://zef:fez@localhost:5433/zef'
 eco-prefix='fez'
 delete-window=24
 port=9000
-bucket='<TEST>'
+email-command=[
+  'raku',
+  '-I.',
+  '-MZeco::Util::Json',
+  '-e',
+  '$*TMPDIR.add("emailx").IO.spurt: to-j({to => @*ARGS[0], type => @*ARGS[1], related-id => @*ARGS[2] });',
+]
+dist-move-command=['raku', '-I.', '-MZeco::Util::Json', '-e', '$*TMPDIR.add("distx").IO.spurt: to-j({ src => @*ARGS[0], dest => @*ARGS[1] });']

@@ -86,7 +86,7 @@ sub init-password-reset(QInitPasswordReset:D $ipr --> Result) is export {
   constant $sql = q:to/EOS/;
     INSERT INTO password_reset (user_id, key, expires)
                         VALUES ($1,      $2,  $3)
-    RETURNING key;
+    RETURNING key, password_reset_id;
   EOS
   constant $usr = q:to/EOS/;
     SELECT user_id, email
@@ -108,17 +108,12 @@ sub init-password-reset(QInitPasswordReset:D $ipr --> Result) is export {
     my $res = db.query($sql, $user<user_id>, $key, DateTime.now.posix+300).hash;
     return NotFound.new if ($res<key>//'') ne $key;
    
-    try { 
-      my $mesult;
-      CATCH {
-        return SuccessFail.new if $mesult<message> ne email-success-message;
-      };
-      $mesult = send-message(message(
-        :to($user<email>),
-        :subject('Password Reset - Zef Ecosystem'),
-        :text("Please re-initiate the password reset"),
-      ));
-    };
+    my $rc = send-message(QEmail.new(
+      :to($user<email>),
+      :type('PASSWORD-RESET'),
+      :id($res<password_reset_id>.Str),
+    ));
+    return SuccessFail.new if $rc != 0;
   };
   $d.finish;
 

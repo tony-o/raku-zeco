@@ -10,7 +10,7 @@ use Zeco::Util::Types;
 use Zeco::Util::Json;
 use Zeco::Responses;
 
-plan 12;
+plan 15;
 
 cleanup;
 
@@ -38,6 +38,10 @@ $test-render.assert(404, {:!success, :message('Not found. If you\'re the last me
 $user-q = QGroupUserRole.new(:user<tonyo-test>, :group<tonyo-group-test>, :role<member>);
 modify-group($user-q, user-id).render($test-render);
 $test-render.assert(200, {:success});
+my $emailer-test = from-j($*TMPDIR.add("emailx").IO.slurp);
+ok $emailer-test<to> eq email, 'emailer script gets correct email';
+ok $emailer-test<type> eq "MODIFY-GROUP", 'emailer script has the correct type';
+ok $emailer-test<related-id>.Int > 0, 'emailer script gets an actual id';
 
 # now you can orphan the org
 leave-group(QGroup.new(:group('tonyo-group-test')), user-id).render($test-render);

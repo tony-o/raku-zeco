@@ -253,7 +253,7 @@ sub modify-group(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
        SET role = $1
      WHERE group_id  = $2
        AND member_id = $3
-    RETURNING member_id;
+    RETURNING member_id, group_members_id;
   EOS
 
   my $result = db.query($sql-ensure-role-exists, $qg.user, $qg.group).hash;
@@ -263,12 +263,12 @@ sub modify-group(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
 
   return UnknownError.new unless ($uresult<member_id>//0) == $result<user_id>;
 
-  my $mesult = send-message(message(
+  my $mesult = send-message(QEmail.new(
     :to($result<email>),
-    :subject("Org Role Update: '{$qg.group}' - Zef Ecosystem"),
-    :text("Your role in '{$qg.group}' has been changed to: {$qg.role}"),
+    :type('MODIFY-GROUP'),
+    :id($uresult<group_members_id>.Str),
   ));
-  return SuccessFail.new if $mesult<message> ne email-success-message; 
+  return SuccessFail.new if $mesult != 0;
 
   Success.new
 }
@@ -327,7 +327,7 @@ sub invite-groups(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
             $2,
             $3,
             $4)
-    RETURNING member_id;
+    RETURNING member_id, org_invite_id;
   EOS
 
   my $guid = group-name-to-id($qg.group); 
@@ -338,12 +338,12 @@ sub invite-groups(QGroupUserRole:D $qg, Int:D $user-id --> Result) is export {
   my $ins = db.query($sql, $qg.group, $u<user_id>, $qg.role, DateTime.now.posix+259200).hash;
   return NotFound.new unless $ins;
 
-  my $mesult = send-message(message(
+  my $mesult = send-message(QEmail.new(
     :to($u<email>),
-    :subject("Org Invite: {$qg.group} - Zef Ecosystem"),
-    :text("You were invited to '{$qg.group}'. Please use `fez org accept '{$qg.group}'` to join, otherwise you can ignore this message."),
+    :type('INVITE-GROUP'),
+    :id($ins<org_invite_id>.Str),
   ));
-  return SuccessFail.new if $mesult<message> ne email-success-message; 
+  return SuccessFail.new if $mesult != 0;
   
   Success.new;
 }
