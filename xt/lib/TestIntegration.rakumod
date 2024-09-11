@@ -34,13 +34,10 @@ $server.stderr.tap(-> $v {
   $*ERR.say: $v;
 });
 my $starter = $server.start;
-dd 'starting';
 
 await $started;
-dd 'started';
 
 END {
   try $server.kill;
-  dd $starter;
   await $starter;
 }

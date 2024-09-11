@@ -4,10 +4,10 @@ use Zeco::DB;
 sub email is export { 'tonyo@test.com' };
 sub email2 is export { 'test@test.com' };
 sub grup is export { 'abc@xyz.com' };
-sub cleanup is export {
+sub cleanup(*@extra-emails) is export {
   my @emails = email, email2, grup;
 
-  for [email, email2, grup] -> $e {
+  for [email, email2, grup, |@extra-emails] -> $e {
     die 'db does not contain localhost' unless db.conninfo.index('localhost');
     db.query('delete from password_reset where user_id in (select user_id from users where email = $1);', $e);
     db.query('delete from keys where user_id in (select user_id from users where email = $1)', $e);
@@ -15,6 +15,7 @@ sub cleanup is export {
     db.query('delete from group_members where member_id in (select user_id from users where email = $1)', $e);
     db.query('delete from org_invites where member_id in (select user_id from users where email = $1)', $e);
     db.query('delete from users where email = $1', $e);
+    db.query('truncate dists;');
   }
 };
 

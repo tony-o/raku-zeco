@@ -58,7 +58,7 @@ Methods for handling the processes around dist management.
 
 =head2 method generate-full-meta(--> Result)
   
-  Returns: a Result object
+  Returns: MetaIndex 
 
   Retrieves all non-deleted dists from the `dists` table and returns them in a
   nicely typed object (as a list).
@@ -86,7 +86,7 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
   return NotFound.new unless $res;
   my $meta = from-j($res<meta>);
   if $meta<auth> ne "{config.eco-prefix}:{$user<username>}" {
-    my $gs = members-groups(QGroup.new(group => $meta<auth>.substr(4)));
+    my $gs = members-groups(QGroup.new(group => $meta<auth>.substr(config.eco-prefix.chars + 1)));
 
     return InvalidAuth.new(:message("Invalid auth. User<{config.eco-prefix}:{$user<username>}> is not a member of {$meta<auth>}"))
       if $gs.status != 200 || $gs.payload.grep({$_<username> eq $user<username>}).elems == 0;
@@ -129,9 +129,11 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   return InvalidMeta6Json.new unless $meta;
 
   # Validate user|group & auth
+  return InvalidAuth.new(:message("Invalid auth: {$meta<auth>}"))
+    if $meta<auth>.substr(0, config.eco-prefix.chars) ne config.eco-prefix;
   if $meta<auth> ne "{config.eco-prefix}:{$user<username>}" {
     # Check groups
-    my $gs = members-groups(QGroup.new(group => $meta<auth>.substr(4)));
+    my $gs = members-groups(QGroup.new(group => $meta<auth>.substr(config.eco-prefix.chars + 1)));
 
     return InvalidAuth.new(:message("Invalid auth. User<{config.eco-prefix}:{$user<username>}> is not a member of {$meta<auth>}"))
       if $gs.status != 200 || $gs.payload.grep({$_<username> eq $user<username>}).elems == 0;
