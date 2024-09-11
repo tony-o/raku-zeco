@@ -1,11 +1,12 @@
 unit module TestIntegration;
 
 use Zeco::DB;
+use Zeco::Config;
 
 my %tbls = db.query('SELECT tablename FROM pg_tables WHERE schemaname = \'public\';')
   .hashes
   .map({ $_<tablename> => True });
-die 'Not a test db, expect table \'test_db\' but did not find it.' unless %tbls<test_db>; 
+die "Not a test db, expect table 'test_db' but did not find it. (conninfo={config.db})" unless %tbls<test_db>; 
 
 my @failed;
 my $fail-cnt = 1;
@@ -26,17 +27,20 @@ say 'truncated...';
 my $server = Proc::Async.new('raku', '-I.', '-MZeco');
 my Promise $started .=new;
 $server.stdout.tap(-> $v { 
-  try $started.keep if $v.index('listening on port');
-  $v.say;
+  $*ERR.say: $v;
+  $started.keep if $v.index('listening on port');
 });
 $server.stderr.tap(-> $v { 
-  $v.say;
+  $*ERR.say: $v;
 });
 my $starter = $server.start;
+dd 'starting';
 
 await $started;
+dd 'started';
 
 END {
-  $server.kill;
+  try $server.kill;
+  dd $starter;
   await $starter;
 }

@@ -5,7 +5,7 @@ dev:
 	raku -I. -M Zeco 
 
 integration:
-	find xt -name '09*.rakutest' | sort | xargs -I{} bash -c 'echo {} && raku -I../fez/ -I. {}'
+	find xt -name '*.rakutest' | sort | xargs -I{} raku -I../fez -I. {}
 
 test:
 	raku -I. $(xt)

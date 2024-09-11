@@ -62,6 +62,4 @@ sub migrate() {
   $db;
 }
 
-my $instance = migrate;
-
-sub db() is export { $instance }
+sub db() is export { once migrate }
