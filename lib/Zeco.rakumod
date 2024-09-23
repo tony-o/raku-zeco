@@ -24,22 +24,23 @@ advice(-> $res {
       default {
         $res.body = $res.body.WHAT ~~ Buf
                  ?? $res.body
-                 !! to-json({
+                 !! to-j({
                       :!success,
                       :error($res.body),
                     });
       }
     }
-    from-json($res.body);
+    from-j($res.body);
   };
   $res;
 });
 advice(&advice-logger);
 error(X::AdHoc, -> $exn, $res {
-  $res.status(500).json(to-json({
+  $res.status(500).json(to-j({
     :!success,
     :exception($exn),
   }));
 });
 
-listen(config.port);
+
+sub start-server is export { listen(config.port); }

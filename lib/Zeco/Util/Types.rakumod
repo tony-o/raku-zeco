@@ -49,7 +49,7 @@ role QType is export {
 
   method from-body($b is copy --> QType:D) {
     $b = $b ~~ Str ?? $b !! $b.decode;
-    my %json   = try { from-json($b) } if $b ne '';
+    my %json   = try { from-j($b) } if $b ne '';
     my %params = [|%json.keys, self.^attributes.map({S/^\$('.'|'!')// given $_.name})]
       .map({
         $_ => %json{$_}//Any;

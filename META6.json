@@ -33,8 +33,6 @@
     "Zeco::Util::Json": "lib/Zeco/Util/Json.rakumod",
     "Zeco::Util::Middleware": "lib/Zeco/Util/Middleware.rakumod",
     "Zeco::Util::Process": "lib/Zeco/Util/Process.rakumod",
-    "Zeco::Util::SHA256": "lib/Zeco/Util/SHA256.rakumod",
-    "Zeco::Util::Test": "lib/Zeco/Util/Test.rakumod",
     "Zeco::Util::Types": "lib/Zeco/Util/Types.rakumod"
   },
   "resources": [

@@ -24,7 +24,7 @@ while $fail-cnt > 0 {
 }
 say 'truncated...';
 
-my $server = Proc::Async.new('raku', '-I.', '-MZeco');
+my $server = Proc::Async.new('raku', '-I.', '-e', 'use Zeco; await start-server');
 my Promise $started .=new;
 $server.stdout.tap(-> $v { 
   $*ERR.say: $v;

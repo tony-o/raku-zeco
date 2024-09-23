@@ -2,6 +2,7 @@ unit module Zeco::Util::Middleware;
 
 use Zeco::Responses;
 use Zeco::Query;
+use Zeco::Util::Json;
 use Zeco::Util::Types;
 
 sub authorize($req, $res, &n) is export {
@@ -22,7 +23,7 @@ sub body-parser(QType $type) is export {
     my $bs = $type.from-body($req.body);
 
     if $bs.^can('error') {
-      return $res.status(418).json(to-json({
+      return $res.status(418).json(to-j({
         :!success,
         :message($bs.error),
       }));
@@ -39,7 +40,7 @@ sub form-parser(QType $type) is export {
     my $fs = $type.from-form($req.content);
 
     if $fs.^can('error') {
-      return $res.status(418).json(to-json({
+      return $res.status(418).json(to-j({
         :!success,
         :message($fs.error),
       }));
@@ -56,7 +57,7 @@ sub query-parser(QType $type) is export {
     my $qs = $type.from-qs($req.query);
 
     if $qs.^can('error') {
-      return $res.status(418).json(to-json({
+      return $res.status(418).json(to-j({
         :!success,
         :message($qs.error),
       }));
