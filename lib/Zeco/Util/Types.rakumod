@@ -2,6 +2,18 @@ unit module Zeco::Util::Types;
 
 use Zeco::Util::Json;
 
+=begin pod
+
+=NAME
+Zeco::Util::Types
+
+=begin SYNOPSIS
+This module contains all valid types to be used in conjunction with the 
+middleware outlined in Zeco::Util::Middleware.
+=end SYNOPSIS
+
+=end pod
+
 class QError is export {
   has Str $.error is rw;
 

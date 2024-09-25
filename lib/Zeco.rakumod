@@ -9,14 +9,18 @@ use Zeco::User;
 use Zeco::Dist;
 use Zeco::Util::Json;
 
+=begin pod
+
 =NAME
 Zeco
 
 =begin SYNOPSIS
-  raku -MZeco
+  raku -MZeco -e 'await start-server;'
 
   Starts the default server.
 =end SYNOPSIS
+
+=end pod
 
 advice(-> $res {
   try {

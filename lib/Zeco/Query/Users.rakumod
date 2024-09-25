@@ -9,7 +9,8 @@ use Zeco::Responses;
 use Zeco::Util::BCrypt;
 use Zeco::Util::Types;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Query::Users
 
@@ -79,7 +80,7 @@ Methods for handling the processes around user management.
   This method is deprecated and should not be used. Provided here for backwards
   compatibility with existing eco-systems. 
 
-=end POD
+=end pod
 
 
 sub init-password-reset(QInitPasswordReset:D $ipr --> Result) is export {

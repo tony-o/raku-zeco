@@ -9,7 +9,8 @@ use Zeco::Responses;
 use Zeco::Query;
 use Zeco::Util::Types;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Query::Groups
 
@@ -142,7 +143,7 @@ Methods for handling the processes around group management.
 
   Updates the group's public meta data.
 
-=end POD
+=end pod
 
 sub group-name-to-id(Str:D $group-name --> Int) is export {
   constant $sql = q:to/EOS/;

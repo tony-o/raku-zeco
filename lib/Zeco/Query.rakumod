@@ -2,7 +2,8 @@ unit module Zeco::Query;
 
 use Zeco::DB;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Query
 
@@ -16,7 +17,7 @@ Contains queries used by middleware to load authenticated user data.
   Returns: Hash - containing the user data
                   <authkey username expires user_id email>
 
-=end POD 
+=end pod 
 
 sub verify-key(Str:D $key --> Hash) is export {
   constant $sql = q:to/EOS/;

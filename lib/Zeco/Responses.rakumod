@@ -3,7 +3,8 @@ unit module Zeco::Responses;
 use Zeco::Util::Json;
 use Zeco::Util::BST;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Responses
 
@@ -30,7 +31,7 @@ web responses.
     Signature: Response - hummingbird response object to serialize the class to
 
 
-=end POD
+=end pod
 
 role Result is export {
   has Str  $.message;

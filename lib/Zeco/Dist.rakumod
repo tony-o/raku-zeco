@@ -7,7 +7,8 @@ use Zeco::Util::Middleware;
 use Zeco::Util::Types;
 use Zeco::Query::Dists;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Dist
 
@@ -39,7 +40,7 @@ listings (in both binary and JSON formats).
   DEPRECATED. Do not use and do not develop further. Included here for existing
   ecosystem compatibility.
 
-=end POD
+=end pod
 
 post('/remove', -> $req, $res {
   remove-dist(

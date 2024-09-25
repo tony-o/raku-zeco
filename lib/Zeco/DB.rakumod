@@ -3,6 +3,8 @@ unit module Zeco::DB;
 use DB::Pg;
 use Zeco::Config;
 
+=begin pod
+
 =NAME
 Zeco::DB
 
@@ -14,6 +16,8 @@ Handles DB connections and migrations. To create a schema change for deployment,
   - Add the two files to the META6.json manifest.
   - Start the server.
 =end SYNOPSIS
+
+=end pod
 
 sub migrate() {
   my $db = DB::Pg.new(conninfo => config.db);

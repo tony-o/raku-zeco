@@ -11,7 +11,8 @@ use Zeco::Util::Process;
 use Zeco::Util::Types;
 use Zeco::Util::Json;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Query::Dists
 
@@ -68,7 +69,7 @@ Methods for handling the processes around dist management.
   Retrieves all non-deleted dists from the `dists` table and returns them in a
   nicely typed object (as a list).
 
-=end POD
+=end pod
 
 sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
   constant $sql-r = q:to/EOS/;

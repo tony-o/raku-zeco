@@ -4,7 +4,8 @@ use Zeco::Config;
 use Zeco::Util::Types;
 use Zeco::Util::Process;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Email
 
@@ -27,7 +28,7 @@ command provided in config.email-command
 
   PASSWORD-RESET     password_reset.password_reset_id 
 
-=end POD
+=end pod
 
 sub send-message(QEmail $msg --> Int) is export {
   my ($rc, ) = proc(|config.email-command, $msg.to, $msg.type, $msg.id);

@@ -2,6 +2,8 @@ unit module Zeco::Config;
 
 use TOML;
 
+=begin pod
+
 =NAME
 Zeco::Config
 
@@ -27,6 +29,8 @@ If none of those resolve to an existing file then configuration will fail.  Vali
   email-command = Command to run when a user needs to be emailed
   dist-move-command = Command to run to move a dist to its final destination
 =end SYNOPSIS
+
+=end pod
 
 class Cfg {
   has Str $.db;

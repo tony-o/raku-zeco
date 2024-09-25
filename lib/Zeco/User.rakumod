@@ -6,7 +6,8 @@ use Zeco::Query::Users;
 use Zeco::Util::Middleware;
 use Zeco::Util::Types;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::User
 
@@ -38,7 +39,7 @@ Contains the webserver routes for creating, leaving, and maintaining groups.
   Updates the requesting user's public meta data as requested in JSON body
   (QUpdateUserMeta).
 
-=end POD
+=end pod
 
 get('/init-password-reset', -> $req, $res {
   init-password-reset(

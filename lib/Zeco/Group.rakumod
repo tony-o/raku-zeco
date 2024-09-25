@@ -6,7 +6,8 @@ use Zeco::Query::Groups;
 use Zeco::Util::Middleware;
 use Zeco::Util::Types;
 
-=begin POD
+=begin pod
+
 =NAME
 Zeco::Group
 
@@ -57,7 +58,7 @@ Contains the webserver routes for creating, leaving, and maintaining groups.
   Updates a group's public meta data as requested by JSON body (QGroupMeta).
   The authorized user must be a group admin to perform this action.
 
-=end POD
+=end pod
 
 # create a group
 get('/group', -> $req, $res {
