@@ -1,6 +1,10 @@
 networks:
-  zef-net:
+  zeconet:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
 
 services:
   postgres:
@@ -8,7 +12,8 @@ services:
     container_name: zefpg
     restart: always
     networks:
-      zef-net:
+      zeconet:
+        ipv4_address: 10.5.0.5 
     ports:
       - "5433:5432"
     environment:
@@ -18,5 +23,23 @@ services:
       PGDATA: '/var/lib/postgresql/data/pgdata'
     volumes:
       - 'zef-db:/var/lib/postgresql/data'
+
+  zeco:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: zeco
+    restart: always
+    networks: ["zeconet"]
+    depends_on: ["postgres"]
+    working_dir: /app
+    ports:
+      - "9000:9000"
+    environment:
+      FEZ_ECO_CONFIG: "/app/resources/test-fez-eco-config.toml"
+      FEZ_CONFIG: "/app/resources/test-fez-config.json"
+    volumes:
+      - ./:/app
+
 volumes:
   zef-db:

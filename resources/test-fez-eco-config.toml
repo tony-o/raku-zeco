@@ -1,4 +1,4 @@
-db='postgres://zef:fez@localhost:5433/zef'
+db='postgres://zef:fez@10.5.0.5:5432/zef'
 eco-prefix='fez'
 delete-window=24
 port=9000
