@@ -49,6 +49,9 @@ post('/remove', -> $req, $res {
   ).render($res);
 }, [&authorize, body-parser(QRemoveDist)]);
 
+get('/index.json', -> $req, $res {
+  $res.redirect("/{$req.query<bin> ~~ 't'|'true'|'1'|'one' ?? '?bin=t' !! ''}", :permanent);
+});
 
 get('/', -> $req, $res {
   generate-full-meta().render($res, :bin($req.query<bin> ~~ 't'|'true'|'1'|'one'));

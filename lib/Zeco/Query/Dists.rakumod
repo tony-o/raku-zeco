@@ -77,12 +77,12 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
     FROM dists
     WHERE dist = $1
       AND EXTRACT(EPOCH FROM created) > $2
-      AND deleted = false;
+      AND deleted IS NULL;
   EOS
 
   constant $sql-u = q:to/EOS/;
     UPDATE dists
-    SET deleted = true
+    SET deleted = now() 
     WHERE id = $1;
   EOS
 
@@ -104,8 +104,8 @@ sub remove-dist(QRemoveDist $dist, $user --> Result) is export {
 
 sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   constant $sql-i = q:to/EOS/;
-    INSERT INTO dists (id,                dist, path, meta, deleted)
-               VALUES (gen_random_uuid(), $1,   $2,   $3,   false)
+    INSERT INTO dists (id,                dist, path, meta)
+               VALUES (gen_random_uuid(), $1,   $2,   $3)
     RETURNING id;
   EOS
 
@@ -175,7 +175,7 @@ sub generate-full-meta(--> Result) is export {
   constant $sql-j = q:to/EOS/;
     SELECT meta
     FROM dists
-    WHERE deleted = false
+    WHERE deleted IS NULL
     ORDER BY created ASC;
   EOS
 
