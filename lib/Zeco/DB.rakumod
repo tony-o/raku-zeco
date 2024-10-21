@@ -21,8 +21,11 @@ Handles DB connections and migrations. To create a schema change for deployment,
 
 sub migrate() {
   my $db = DB::Pg.new(conninfo => config.db);
+  return $db if %*ENV<SKIP_MIGRATIONS>;
+
   my %migrations;
   for |$?DISTRIBUTION.meta<resources> -> $r {
+    next if ($r.Str.index('migrations/') // -1) != 0;
     my @parts = $r.IO.basename.split('.');
     my $name = @parts[0..*-3].join('.');
     my $dir  = @parts[*-2];
@@ -63,7 +66,15 @@ sub migrate() {
     };
   }
 
+  
+  if %*ENV<MIGRATIONS_ONLY> {
+    say 'All migrations run, exiting due to MIGRATIONS_ONLY being set';
+    exit 0;
+  }
+
   $db;
 }
 
-sub db() is export { once migrate }
+my $pool = once migrate;
+
+sub db() is export { $pool }

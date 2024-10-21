@@ -2,7 +2,7 @@ export FEZ_ECO_CONFIG := resources/test-fez-eco-config.toml
 export FEZ_CONFIG     := resources/test-fez-config.json
 
 dev:
-	raku -I. -M Zeco 
+	raku -I. -e 'use Zeco; await start-server;' 
 
 integration:
 	cat META6.json  | grep '::' | grep '":' | awk -F': ' '{print$$1}' |  xargs -I{} bash -c 'if [[ $$(grep "use {}" lib -RnI | wc -l) -eq 0 ]]; then echo "{} unused"; exit 1;  fi'

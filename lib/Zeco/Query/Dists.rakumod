@@ -160,6 +160,7 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   my $index-meta = $meta;
   $index-meta<path> = $path;
   $index-meta<dist> = $dist-name;
+  $index-meta<source-url>:delete;
   my ($rc, $pout, $perr) = proc(|config.dist-move-command, $gz-path.absolute, $path);
 
   return UnknownError.new(:message('Failed to send dist to permanent index, please try again in a few minutes'))
