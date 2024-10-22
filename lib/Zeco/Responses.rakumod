@@ -186,3 +186,15 @@ class MetaIndex does Result is export {
   }
   method index() { @!index; }
 }
+
+class UserMetaIndex does Result is export {
+  has %!index;
+
+  submethod BUILD (:%!index, :$!status = 200) { }
+  method render($res) {
+    $res.status($!status);
+    $res.json(to-j(%!index));
+    $res;
+  }
+  method index() { %!index; }
+}

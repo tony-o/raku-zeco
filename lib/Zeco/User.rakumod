@@ -71,3 +71,7 @@ post('/update-meta', -> $req, $res {
     $req.stash<user><user_id>,
   ).render($res);
 }, [&authorize, body-parser(QUpdateUserMeta)]);
+
+get('/meta.json', -> $req, $res {
+  dump-user-meta.render($res);
+});

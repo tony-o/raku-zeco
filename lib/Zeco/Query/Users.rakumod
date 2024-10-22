@@ -5,6 +5,7 @@ use Email::Valid;
 
 use Zeco::DB;
 use Zeco::Email;
+use Zeco::Config;
 use Zeco::Responses;
 use Zeco::Util::BCrypt;
 use Zeco::Util::Types;
@@ -65,6 +66,14 @@ Methods for handling the processes around user management.
                      provided.
 
   Create a new user.
+
+=head2 method dump-user-meta(Result) 
+
+  Signature: <None> 
+  Returns: Success - a hash of auth to available meta data for auth.
+
+  Displays an index of the currently stored meta data for users this ecosystem
+  recognizes.
 
 =head2 method update-user-meta(QUpdateUserMeta:D, Int:D --> Result) 
 
@@ -224,6 +233,25 @@ sub register(QRegister:D $reg --> Result) is export {
   die 'Uh oh!' unless $res<user_id>;
 
   Success.new;
+}
+
+sub dump-user-meta(--> Result) is export {
+  constant $sql-s = q:to/EOS/;
+    SELECT u.username, key, value
+    FROM user_meta um
+    LEFT JOIN users u
+      ON u.user_id = um.user_id
+    ORDER BY um.user_id;
+  EOS
+  my @ud = db.query($sql-s).hashes;
+  my (%metas, $ukey);
+  for @ud -> $ud {
+    $ukey = "{config.eco-prefix}:{$ud<username>}";
+    %metas{$ukey} //= {};
+    %metas{$ukey}{$ud<key>} = $ud<value>;
+  }
+
+  UserMetaIndex.new(index => %metas);
 }
 
 sub update-user-meta(QUpdateUserMeta:D $meta, Int:D $user-id --> Result) is export {
