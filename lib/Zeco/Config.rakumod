@@ -22,6 +22,7 @@ If none of those resolve to an existing file then configuration will fail.  Vali
   db            = A postgres URI connection string
   port          = Port for the web server to listen on
   eco-prefix    = The first part of the ecosystem's auth, eg "<eco-prefix>:<username>"
+  dist-dl-uri   = Redirect prefix for dist downloads
   delete-window = A number, in hours, dists are allowed to be deleted.
                   - > 0 means deletion is possible for X hours after uploaded
                   - = 0 means possible any time
@@ -37,12 +38,14 @@ class Cfg {
   has Int $.port;
   has Int $.delete-window;
   has Str $.eco-prefix;
+  has Str $.dist-dl-uri;
   has @.email-command;
   has @.dist-move-command;
 
   submethod BUILD(Str:D :$!db,
                   Int:D :$!delete-window,
                   Str:D :$!eco-prefix,
+                  Str:D :$!dist-dl-uri,
                   Int:D :$!port = 8080,
                   :@!email-command,
                   :@!dist-move-command,

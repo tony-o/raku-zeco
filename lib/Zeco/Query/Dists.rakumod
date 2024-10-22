@@ -158,7 +158,7 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   my $dist-name = $meta<name>
                 ~ sprintf(':ver<%s>:auth<%s>', $escaped-ver, $escaped-auth);
   my $index-meta = $meta;
-  $index-meta<path> = $path;
+  $index-meta<path> = "/dist/{$path}";
   $index-meta<dist> = $dist-name;
   $index-meta<source-url>:delete;
   my ($rc, $pout, $perr) = proc(|config.dist-move-command, $gz-path.absolute, $path);

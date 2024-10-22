@@ -3,6 +3,7 @@ unit module Zeco::Dist;
 use Humming-Bird::Core;
 
 use Zeco::Responses;
+use Zeco::Config;
 use Zeco::Util::Middleware;
 use Zeco::Util::Types;
 use Zeco::Query::Dists;
@@ -28,6 +29,10 @@ listings (in both binary and JSON formats).
   currently in the ecosystem.  To retrieve the listing as a binary index, supply
   a query string of `?bin=true`.
 
+=head2 GET /index.json
+
+  Redirects to /.  Included here for tooling backwards compatibility.
+
 =head2 POST /upload (Authorization required)
 
   Expects a multipart/form-data payload containing the fields outlined in
@@ -39,6 +44,11 @@ listings (in both binary and JSON formats).
 
   DEPRECATED. Do not use and do not develop further. Included here for existing
   ecosystem compatibility.
+
+=head2 GET /dist/**
+
+  Used for retrieving a distribution from the ecosystem. This endpoint will
+  redirect to {config.dist-dl-uri}/**
 
 =end pod
 
@@ -72,3 +82,7 @@ get('/upload', -> $req, $res {
          :message('This endpoint is deprecated, please update your tooling'))
     .render($res);
 }, [&authorize]);
+
+get('/dist/**', -> $req, $res {
+  $res.redirect(config.dist-dl-uri ~ $req.path.substr(5), :permanent);
+});
