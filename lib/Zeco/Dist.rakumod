@@ -50,6 +50,11 @@ listings (in both binary and JSON formats).
   Used for retrieving a distribution from the ecosystem. This endpoint will
   redirect to {config.dist-dl-uri}/**
 
+=head2 GET /auth-prefix
+
+  Returns the ecosystem's auth prefix. Is also a placeholder for future meta data
+  that may be required by consumers.
+
 =end pod
 
 post('/remove', -> $req, $res {
@@ -65,6 +70,10 @@ get('/index.json', -> $req, $res {
 
 get('/', -> $req, $res {
   generate-full-meta().render($res, :bin($req.query<bin> ~~ 't'|'true'|'1'|'one'));
+});
+
+get('/auth-prefix', -> $req, $res {
+  Success.new(:message(config.eco-prefix)).render($res);
 });
 
 post('/upload', -> $req, $res {

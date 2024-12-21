@@ -39,6 +39,10 @@ Contains the webserver routes for creating, leaving, and maintaining groups.
   Updates the requesting user's public meta data as requested in JSON body
   (QUpdateUserMeta).
 
+=head2 GET /meta.json
+
+  Returns a hash of auth to public user meta.
+
 =end pod
 
 get('/init-password-reset', -> $req, $res {
