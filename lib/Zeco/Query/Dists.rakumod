@@ -162,24 +162,7 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   $index-meta<dist> = $dist-name;
   $index-meta<source-url>:delete;
 
-  my @cmd;
-  my $found-placeholders = False;
-  for config.dist-move-command -> $arg {
-    if $arg eq '{0}' {
-      $found-placeholders = True;
-      @cmd.push: $gz-path.absolute;
-    } elsif $arg eq '{1}' {
-      $found-placeholders = True;
-      @cmd.push: $path;
-    } else {
-      @cmd.push: $arg;
-    }
-  }
-
-  @cmd.push: |[$gz-path.absolute, $path]
-    if !$found-placeholders;
-
-  my ($rc, $pout, $perr) = proc(|@cmd);
+  my ($rc, $pout, $perr) = proc(|config.dist-move-command, $gz-path.absolute, $path);
 
   return UnknownError.new(:message('Failed to send dist to permanent index, please try again in a few minutes'))
     unless $rc == 0;
