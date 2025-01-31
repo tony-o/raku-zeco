@@ -129,6 +129,12 @@ class InvalidPassword does Result is export {
   method MIN_LEN { 8 }
 }
 
+class DistExists does Result is export {
+  submethod BUILD (:$!message = 'Dist exists',
+                   :$!success = False,
+                   :$!status  = 422) {}
+}
+
 class UsernameExists does Result is export {
   submethod BUILD (:$!message = 'Username exists, please choose another or initiate a password reset.',
                    :$!success = False,

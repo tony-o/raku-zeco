@@ -108,6 +108,9 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
                VALUES (gen_random_uuid(), $1,   $2,   $3)
     RETURNING id;
   EOS
+  constant $sql-s = q:/to/EOS/;
+    SELECT id FROM dists WHERE dist = $1 LIMIT 1;
+  EOS
 
   my $key = sha1-hex($dist.dist);
   my $gz-path = $*TMPDIR.add("$key.tgz");
@@ -161,6 +164,10 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
   $index-meta<path> = "/dist/{$path}";
   $index-meta<dist> = $dist-name;
   $index-meta<source-url>:delete;
+
+  my $existing-dist = db.query($sql-s, $dist-name).array;
+
+  return DistExists.new if $existing-dist.elems > 0;
 
   my ($rc, $pout, $perr) = proc(|config.dist-move-command, $gz-path.absolute, $path);
 
