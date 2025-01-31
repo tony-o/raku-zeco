@@ -108,7 +108,7 @@ sub ingest-upload(QIngestUpload $dist, $user --> Result) is export {
                VALUES (gen_random_uuid(), $1,   $2,   $3)
     RETURNING id;
   EOS
-  constant $sql-s = q:/to/EOS/;
+  constant $sql-s = q:to/EOS/;
     SELECT id FROM dists WHERE dist = $1 LIMIT 1;
   EOS
 
