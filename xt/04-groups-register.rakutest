@@ -1,0 +1,46 @@
+use Test;
+
+use lib 'xt/lib';
+use TestRender;
+use TestUtil;
+use Zeco::DB;
+use Zeco::Query::Users;
+use Zeco::Query::Groups;
+use Zeco::Util::Types;
+use Zeco::Util::Json;
+use Zeco::Responses;
+
+plan 12;
+
+cleanup;
+
+my $test-render = TestRender.new;
+my $user-q = QRegister.new(:email(email), :username<tonyo-test>, :password<password>);
+
+# sign up
+register($user-q).render($test-render);
+$test-render.assert(200, {:success});
+
+ok !group-exists('tonyo-group-test').so,
+   "group 'tonyo-group-test' exists";
+ok !is-group-admin('tonyo-group-test', user-id).so,
+   'user is admin of group by default';
+
+$user-q = QCreateGroup.new(:email(grup), :group<tonyo-group-test>);
+create-group($user-q, user-id).render($test-render);
+$test-render.assert(200, {:success});
+
+# group name exists
+$user-q = QCreateGroup.new(:email(grup), :group<tonyo-group-test>);
+create-group($user-q, user-id).render($test-render);
+$test-render.assert(422, {:!success, :message('Group or username already exists.')});
+
+# check collisions with users exists
+$user-q = QCreateGroup.new(:email(grup), :group('tonyo-test'));
+create-group($user-q, user-id).render($test-render);
+$test-render.assert(422, {:!success, :message('Group or username already exists.')});
+
+ok group-exists('tonyo-group-test').so,
+   "group 'tonyo-group-test' exists";
+
+ok is-group-admin('tonyo-group-test', user-id), 'user is admin of group by default';

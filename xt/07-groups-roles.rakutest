@@ -1,0 +1,69 @@
+use Test;
+
+use lib 'xt/lib';
+use TestRender;
+use TestUtil;
+use Zeco::DB;
+use Zeco::Query::Users;
+use Zeco::Query::Groups;
+use Zeco::Util::Types;
+use Zeco::Util::Json;
+use Zeco::Responses;
+
+plan 27;
+
+cleanup;
+
+sub chk-email($email) {
+  my $emailer-test = from-j($*TMPDIR.add("emailx").IO.slurp);
+  ok $emailer-test<to> eq $email, 'emailer script gets correct email';
+  ok $emailer-test<type> eq "INVITE-GROUP", 'emailer script has the correct type';
+  ok $emailer-test<related-id>.Int > 0, 'emailer script gets an actual id';
+}
+
+my $test-render = TestRender.new;
+my $user-q = QRegister.new(:email(email), :username<tonyo-test>, :password<password>);
+
+# sign up
+register($user-q).render($test-render);
+$test-render.assert(200, {:success});
+
+$user-q = QCreateGroup.new(:email(grup), :group<tonyo-group-test>);
+create-group($user-q, user-id).render($test-render);
+$test-render.assert(200, {:success});
+
+$user-q = QRegister.new(:email(email2), :username<tonyo-test2>, :password<password>);
+register($user-q).render($test-render);
+$test-render.assert(200, {:success});
+
+leave-group(QGroup.new(:group<tonyo-test>), user-id(email2)).render($test-render);
+$test-render.assert(404, {:!success, :message('Not found. If you\'re the last member then you need to demote yourself to member and then leave.  This is to avoid accidentally orphaned orgs.')});
+
+# try to invite as a non-member of the group
+$user-q = QGroupUserRole.new(:group<tonyo-group-test>, :user<tonyo-test2>, :role<member>);
+invite-groups($user-q, user-id(email2)).render($test-render);
+$test-render.assert(403, {:!success, :message('You must be an admin to perform this action.')}, :tag('Non-member invite should be unauthorized'));
+
+invite-groups($user-q, user-id(email)).render($test-render);
+$test-render.assert(200, {:success}, :tag('Admin invite should work'));
+chk-email(email2);
+
+pending-invites-groups(user-id(email2)).render($test-render);
+$test-render.assert(200, {:success, groups => [{:name<tonyo-group-test>, :role<member>}, ]}, :tag('usr2 should have pending invites'));
+
+$user-q = QGroup.new(:group<tonyo-group-test>);
+accept-invite-groups($user-q, user-id).render($test-render);
+$test-render.assert(404, {:!success, :message('Not found.')}, :tag('Accept invite from already member'));
+
+accept-invite-groups($user-q, user-id(email2)).render($test-render);
+$test-render.assert(200, {:success}, :tag('Accept invite'));
+
+pending-invites-groups(user-id(email2)).render($test-render);
+$test-render.assert(200, {:success, groups => []}, :tag('usr2 should not have pending invites'));
+
+accept-invite-groups($user-q, user-id(email2)).render($test-render);
+$test-render.assert(404, {:!success, :message('Not found.')}, :tag('Try to re-accept'));
+
+$user-q = QGroupUserRole.new(:group<tonyo-group-test>, :user<tonyo-test2>, :role<member>);
+invite-groups($user-q, user-id(email2)).render($test-render);
+$test-render.assert(403, {:!success, :message('You must be an admin to perform this action.')}, :tag('Member non-admin invite should be unauthorized'));

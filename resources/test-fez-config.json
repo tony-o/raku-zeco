@@ -1,0 +1,4 @@
+{"host": "http://localhost:9000",
+ "bundlers": ["Fez::Util::Pkg"],
+ "requestors": ["Fez::Util::Curl"]
+}

@@ -1,0 +1,92 @@
+Enum "group_role" {
+  "admin"
+  "member"
+}
+
+Table "group_members" {
+  "group_id" integer [not null]
+  "member_id" integer [not null]
+  "role" group_role [not null]
+
+  Indexes {
+    (group_id, member_id) [unique, name: "group_members_group_id_member_id_key"]
+  }
+}
+
+Table "keys" {
+  "key_id" integer [pk, not null]
+  "user_id" integer
+  "authkey" text [unique]
+  "expires" bigint
+}
+
+Table "org_invites" {
+  "group_id" bigint [not null]
+  "member_id" bigint [not null]
+  "role" group_role [not null]
+  "expires" bigint [not null]
+}
+
+Table "password_reset" {
+  "password_reset_id" integer [pk, not null]
+  "user_id" bigint
+  "key" text [unique]
+  "expires" bigint
+}
+
+Table "pkeys" {
+  "pkey_id" integer [pk, not null]
+  "user_id" integer
+  "prekey" text [unique]
+  "expires" bigint
+}
+
+Table "user_meta" {
+  "user_meta_id" integer [pk, not null]
+  "user_id" bigint
+  "key" text
+  "value" text
+
+  Indexes {
+    (user_id, key) [unique, name: "user_meta_user_id_key_key"]
+  }
+}
+
+Table "users" {
+  "user_id" integer [pk, not null]
+  "email" text
+  "username" text [unique]
+  "password" text
+}
+
+Table "stats" {
+  "stat_id" integer [pk, not null]
+  "name" text [not null]
+  "version" text
+  "dldate" date [not null]
+  "count" bigint [not null]
+  "auth" text [not null]
+
+  Indexes {
+    (name, version, dldate, auth) [unique, name: "stats_name_version_dldate_auth"]
+  }
+}
+
+Table "stats_l" {
+  "name" text
+  "version" text
+  "dldate" date
+  "count" bigint
+  "auth" text
+  "upkey" text
+  "stat_id" integer [not null]
+}
+
+Ref "group_members_group_id_fkey":"users"."user_id" < "group_members"."group_id"
+Ref "group_members_member_id_fkey":"users"."user_id" < "group_members"."member_id"
+Ref "keys_user_id_fkey":"users"."user_id" < "keys"."user_id"
+Ref "org_invites_group_id_fkey":"users"."user_id" < "org_invites"."group_id"
+Ref "org_invites_member_id_fkey":"users"."user_id" < "org_invites"."member_id"
+Ref "password_reset_user_id_fkey":"users"."user_id" < "password_reset"."user_id"
+Ref "pkeys_user_id_fkey":"users"."user_id" < "pkeys"."user_id"
+Ref "user_meta_user_id_fkey":"users"."user_id" < "user_meta"."user_id"

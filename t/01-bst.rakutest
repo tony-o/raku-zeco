@@ -1,0 +1,17 @@
+use Test;
+use Zeco::Util::BST;
+use Zeco::Util::Json;
+
+plan 5;
+
+my $bst = index-f('t/data/meta.json');
+
+ok $bst.find-partial('ACME').elems == 16, "find-partial (expect: 16, got: {$bst.find-partial('ACME').elems})";
+ok $bst.find('Acme::Cow').elems == 1, "find (expect: 1, got: {$bst.find('Acme::Cow').elems})";
+
+my $fidx = $*TMPDIR.add('xdx.index');
+$fidx.spurt($bst.serialize, :bin);
+ok BST.find-partial-index($fidx, 'ACME').elems == 16, "find-partial-index (expect: 16, got: {BST.find-partial-index($fidx, 'ACME').elems})";
+my $ac = BST.find-index($fidx, 'Acme::Cow');
+ok $ac.elems == 2, "find-index (expect: 2, got: {$ac.elems})";
+ok $ac eqv ['Acme::Cow', 'Acme::Cow:ver<0.0.5>:auth<zef:lizmat>'] , "find-index (expect: 2, got: {$ac.elems})";
