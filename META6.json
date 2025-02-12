@@ -14,6 +14,7 @@
     "Digest::SHA1::Native"
   ],
   "description": "An ecosystem hosting module for raku",
+  "license": "Artistic-2.0",
   "name": "Zeco",
   "provides": {
     "Zeco": "lib/Zeco.rakumod",
@@ -21,12 +22,12 @@
     "Zeco::DB": "lib/Zeco/DB.rakumod",
     "Zeco::Dist": "lib/Zeco/Dist.rakumod",
     "Zeco::Email": "lib/Zeco/Email.rakumod",
-    "Zeco::Responses": "lib/Zeco/Responses.rakumod",
     "Zeco::Group": "lib/Zeco/Group.rakumod",
     "Zeco::Query": "lib/Zeco/Query.rakumod",
     "Zeco::Query::Dists": "lib/Zeco/Query/Dists.rakumod",
     "Zeco::Query::Groups": "lib/Zeco/Query/Groups.rakumod",
     "Zeco::Query::Users": "lib/Zeco/Query/Users.rakumod",
+    "Zeco::Responses": "lib/Zeco/Responses.rakumod",
     "Zeco::User": "lib/Zeco/User.rakumod",
     "Zeco::Util::BCrypt": "lib/Zeco/Util/BCrypt.rakumod",
     "Zeco::Util::BST": "lib/Zeco/Util/BST.rakumod",
