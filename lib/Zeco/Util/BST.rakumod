@@ -4,8 +4,7 @@ use Zeco::Util::Json;
 
 =begin pod
 
-=NAME
-Zeco::Util::BST
+=title Zeco::Util::BST
 
 =begin SYNOPSIS
 Binary index generator and reader for the type of search tree that this

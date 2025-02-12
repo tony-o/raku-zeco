@@ -5,8 +5,7 @@ use Zeco::Util::BST;
 
 =begin pod
 
-=NAME
-Zeco::Responses
+=title Zeco::Responses
 
 =begin SYNOPSIS
 Contains typed responses for use in method chaining or serializing to JSON for

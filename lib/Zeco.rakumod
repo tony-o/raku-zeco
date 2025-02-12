@@ -11,8 +11,7 @@ use Zeco::Util::Json;
 
 =begin pod
 
-=NAME
-Zeco
+=title Zeco
 
 =begin SYNOPSIS
   raku -MZeco -e 'await start-server;'

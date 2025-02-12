@@ -4,8 +4,7 @@ use Zeco::Util::Json;
 
 =begin pod
 
-=NAME
-Zeco::Util::Types
+=title Zeco::Util::Types
 
 =begin SYNOPSIS
 This module contains all valid types to be used in conjunction with the 

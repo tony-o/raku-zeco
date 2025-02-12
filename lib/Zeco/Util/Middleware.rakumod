@@ -7,8 +7,7 @@ use Zeco::Util::Types;
 
 =begin pod
 
-=NAME
-Zeco::Util::Middleware
+=title Zeco::Util::Middleware
 
 =begin SYNOPSIS
 This module contains Sparrow middleware for authorization and request parsing,

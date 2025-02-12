@@ -8,8 +8,7 @@ use Zeco::Util::Types;
 
 =begin pod
 
-=NAME
-Zeco::Group
+=title Zeco::Group
 
 =begin SYNOPSIS
 Contains the webserver routes for creating, leaving, and maintaining groups.

@@ -5,8 +5,7 @@ use Zeco::Config;
 
 =begin pod
 
-=NAME
-Zeco::DB
+=title Zeco::DB
 
 =begin SYNOPSIS
 Handles DB connections and migrations. To create a schema change for deployment, take the following steps:

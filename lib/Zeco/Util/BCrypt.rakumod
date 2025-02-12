@@ -5,8 +5,7 @@ use Crypt::Random;
 
 =begin pod
 
-=NAME
-Zeco::Util::BCrypt
+=title Zeco::Util::BCrypt
 
 =begin SYNOPSIS
 Contains bindings to libcrypt and provides two methods for hashing and matching

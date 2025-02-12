@@ -4,8 +4,7 @@ use Zeco::DB;
 
 =begin pod
 
-=NAME
-Zeco::Query
+=title Zeco::Query
 
 =begin SYNOPSIS
 Contains queries used by middleware to load authenticated user data.

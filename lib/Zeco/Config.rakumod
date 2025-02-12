@@ -4,8 +4,7 @@ use TOML;
 
 =begin pod
 
-=NAME
-Zeco::Config
+=title Zeco::Config
 
 =begin SYNOPSIS
 Loads the config into local class ::Cfg. The search paths for the config loader are:

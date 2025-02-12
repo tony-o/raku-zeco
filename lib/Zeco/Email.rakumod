@@ -6,8 +6,7 @@ use Zeco::Util::Process;
 
 =begin pod
 
-=NAME
-Zeco::Email
+=title Zeco::Email
 
 =begin SYNOPSIS
 Contains an shorter interface for sending emails from the server. Will run the

@@ -2,8 +2,7 @@ unit package Zeco::Util::Json;
 
 =begin pod
 
-=NAME
-Zeco::Util::Json
+=title Zeco::Util::Json
 
 =begin SYNOPSIS
 Uses the Rakudo internals for json parsing. The reasoning behind this is to

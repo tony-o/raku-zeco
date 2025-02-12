@@ -12,8 +12,7 @@ use Zeco::Util::Types;
 
 =begin pod
 
-=NAME
-Zeco::Query::Users
+=title Zeco::Query::Users
 
 =begin SYNOPSIS
 Methods for handling the processes around user management.

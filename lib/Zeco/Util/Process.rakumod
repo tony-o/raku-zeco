@@ -2,8 +2,7 @@ unit module Zeco::Util::Process;
 
 =begin pod
 
-=NAME
-Zeco::Util::Process
+=title Zeco::Util::Process
 
 =begin SYNOPSIS
 This is a convenience wrapper around Proc::Async.

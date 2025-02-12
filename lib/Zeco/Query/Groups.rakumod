@@ -11,8 +11,7 @@ use Zeco::Util::Types;
 
 =begin pod
 
-=NAME
-Zeco::Query::Groups
+=title Zeco::Query::Groups
 
 =begin SYNOPSIS
 Methods for handling the processes around group management.

@@ -13,8 +13,7 @@ use Zeco::Util::Json;
 
 =begin pod
 
-=NAME
-Zeco::Query::Dists
+=title Zeco::Query::Dists
 
 =begin SYNOPSIS
 Methods for handling the processes around dist management.

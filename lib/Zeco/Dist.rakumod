@@ -10,8 +10,7 @@ use Zeco::Query::Dists;
 
 =begin pod
 
-=NAME
-Zeco::Dist
+=title Zeco::Dist
 
 =begin SYNOPSIS
 Contains the webserver routes for removing and uploading dists, and for meta
